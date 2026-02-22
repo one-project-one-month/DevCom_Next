@@ -24,7 +24,7 @@ export function PanelCard({ children, className = "" }: PanelCardProps) {
 export function AvatarCircle({ className = "" }: AvatarCircleProps) {
   return (
     <div
-      className={`rounded-full bg-gradient-to-br from-slate-700 to-slate-900 ${className}`}
+      className={`rounded-full bg-linear-to-br from-slate-700 to-slate-900 ${className}`}
     />
   );
 }
