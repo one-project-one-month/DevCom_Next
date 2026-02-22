@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Social Dev Community",
-  description: "Starter structure using Zustand, React Query, and shadcn UI components.",
+  description: "Social developer community dashboard.",
 };
 
 export default function RootLayout({
