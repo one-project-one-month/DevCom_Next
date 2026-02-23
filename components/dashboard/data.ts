@@ -154,9 +154,10 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "8",
+    isOwnPost: true,
     format: "Build Log",
-    name: "Armad Khan",
-    handle: "@armad.dev",
+    name: "H.Hlaing Swan",
+    handle: "@hhlaing.swan",
     time: "12h",
     title: "Knowledge feed UX migration notes",
     content:

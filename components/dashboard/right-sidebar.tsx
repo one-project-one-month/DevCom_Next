@@ -1,4 +1,5 @@
 import { Activity, ArrowUpRight, BookMarked, UserPlus } from "lucide-react";
+import Link from "next/link";
 
 import { activities, knowledgeTopics, suggestions } from "@/components/dashboard/data";
 import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
@@ -84,10 +85,13 @@ function QuickShareCard() {
       <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
         Improve one existing thread with a runnable fix or measurable result.
       </p>
-      <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-blue-700">
+      <Link
+        href="/create-post"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+      >
         <BookMarked className="h-4 w-4" />
         Add Solution Note
-      </button>
+      </Link>
       <button className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
         <ArrowUpRight className="h-4 w-4" />
         Open Knowledge Board
