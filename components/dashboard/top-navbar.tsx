@@ -53,13 +53,13 @@ export function TopNavbar({
       >
         <PanelCard
           className={cn(
-            "flex flex-wrap items-center gap-2.5 px-3 py-2.5 transition-all duration-300 ease-out sm:px-4 sm:py-2.5 lg:grid lg:grid-cols-[max-content_minmax(420px,620px)_max-content] lg:items-center lg:gap-4",
+            "flex flex-wrap items-center justify-between gap-2.5 px-3 lg:px-10 py-2.5 transition-all duration-300 ease-out sm:px-4 sm:py-2.5 lg:gap-4",
             isScrolled
               ? "rounded-2xl border-slate-200/70 bg-white/70 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-2xl dark:border-slate-700/70 dark:bg-slate-900/65"
               : "rounded-none border-x-0 border-t-0 border-b border-slate-200/80 bg-white/95 shadow-none dark:border-slate-800/80 dark:bg-slate-950/95",
           )}
         >
-          <div className="flex items-center gap-2 lg:justify-self-start">
+          <div className="flex shrink-0 items-center gap-2">
             <IconButton
               className={cn(
                 "inline-flex transition-transform duration-200 active:scale-95 max-[980px]:inline-flex min-[981px]:hidden",
@@ -101,7 +101,7 @@ export function TopNavbar({
             </p>
           </div>
 
-          <div className="order-3 flex w-full items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 md:order-2 md:mx-4 md:max-w-md md:flex-1 lg:order-0 lg:mx-0 lg:max-w-none lg:flex-none">
+          <div className="order-3 hidden w-full items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 min-[780px]:flex md:order-2 md:mx-4 md:max-w-md md:flex-1 lg:order-0 lg:mx-auto lg:max-w-155 lg:flex-1">
             <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
             <input
               className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -109,7 +109,7 @@ export function TopNavbar({
             />
           </div>
 
-          <nav className="ml-auto flex items-center gap-1 sm:gap-2 md:order-3 lg:ml-0 lg:justify-self-end">
+          <nav className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:order-3 lg:ml-0">
             <IconButton className="hidden sm:inline-flex">
               <LayoutGrid className="h-4 w-4" />
             </IconButton>
