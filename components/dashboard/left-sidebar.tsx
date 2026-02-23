@@ -21,18 +21,14 @@ function ProfileCard({ pathname }: { pathname: string }) {
         <AvatarCircle className="-mt-8 mb-3 h-16 w-16 border-4 border-white dark:border-slate-900" />
         <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">H.Hlaing Swan</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400">@hhlaing.swan</p>
-        <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+        <div className="mt-4 grid grid-cols-2 gap-3 text-center">
           <div>
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">128</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Posts</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Threads</p>
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">3.4k</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Followers</p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">542</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Following</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">884</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Helpful</p>
           </div>
         </div>
         <Link
