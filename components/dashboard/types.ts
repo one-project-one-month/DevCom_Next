@@ -33,5 +33,4 @@ export type FeedPost = {
   helpful: number;
   replies: number;
   saves: number;
-  status?: "Solved" | "Reviewing";
 };

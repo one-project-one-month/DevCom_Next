@@ -22,8 +22,15 @@ type FeedPostCardProps = {
   showAuthor?: boolean;
   showCommentBox?: boolean;
   showOpenThreadAction?: boolean;
-  showThreadSnapshot?: boolean;
 };
+
+function profileHrefFromHandle(handle: string) {
+  const slug = handle.replace(/^@/, "");
+  if (slug === "hhlaing.swan") {
+    return "/profile";
+  }
+  return `/profile/${slug}`;
+}
 
 function formatStyles(format: FeedPost["format"]) {
   if (format === "Question") {
@@ -44,7 +51,6 @@ export function FeedPostCard({
   showAuthor = true,
   showCommentBox = true,
   showOpenThreadAction = true,
-  showThreadSnapshot = true,
 }: FeedPostCardProps) {
   return (
     <PanelCard className={cn("p-4", className)}>
@@ -53,64 +59,69 @@ export function FeedPostCard({
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500" />
             <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{post.name}</p>
+              <Link
+                href={profileHrefFromHandle(post.handle)}
+                className="text-sm font-semibold text-slate-900 underline-offset-2 hover:underline dark:text-slate-100"
+              >
+                {post.name}
+              </Link>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {post.handle} • {post.time}
+                <Link href={profileHrefFromHandle(post.handle)} className="hover:text-slate-700 dark:hover:text-slate-200">
+                  {post.handle}
+                </Link>{" "}
+                • {post.time}
               </p>
             </div>
           </div>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400">{post.time}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {post.time}
+          </p>
         )}
 
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${formatStyles(post.format)}`}>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${formatStyles(post.format)}`}
+          >
             {post.format}
           </span>
-          {post.status ? (
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-              {post.status}
-            </span>
-          ) : null}
         </div>
       </div>
 
-      <h3 className="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">{post.title}</h3>
-      <p className="mb-4 text-sm leading-6 text-slate-700 dark:text-slate-300">{post.content}</p>
+      <h3 className="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+        {post.title}
+      </h3>
+      <p className="mb-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+        {post.content}
+      </p>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300">
+          Public
+        </span>
+        {post.tags.map((tag) => (
+          <span
+            key={`${post.id}-${tag}`}
+            className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
 
       {post.imageUrl ? (
-        <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+        <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
           <Image
             src={post.imageUrl}
             alt={`${post.title} visual`}
-            width={160}
-            height={160}
-            className="mx-auto h-40 w-40 object-contain opacity-85"
+            width={700}
+            height={700}
+            className="h-64 w-full rounded-xl object-contain opacity-90"
           />
         </div>
       ) : null}
 
-      <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          {post.tags.map((tag) => (
-            <span
-              key={`${post.id}-${tag}`}
-              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {showThreadSnapshot ? (
-          <div className="rounded-xl bg-slate-900 p-3 text-xs leading-5 text-slate-100">
-            <p className="mb-1 text-slate-300">Thread Snapshot</p>
-            <p>Repro steps, constraints, and accepted answers stay here so teams can reuse solutions later.</p>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
         <button className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100">
           <BookOpenText className="h-4 w-4" />
           {post.helpful} helpful

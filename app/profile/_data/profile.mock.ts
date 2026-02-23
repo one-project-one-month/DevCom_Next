@@ -2,6 +2,7 @@ import type { ProfilePageData } from "@/app/profile/_types";
 
 const profile = {
   id: "me-1",
+  isOwnProfile: true,
   name: "H.Hlaing Swan",
   handle: "@hhlaing.swan",
   role: "Frontend Engineer",
@@ -9,10 +10,10 @@ const profile = {
   bio: "Building knowledge-first developer experiences focused on readability, maintainability, and practical problem solving.",
   expertise: ["React", "Next.js", "TypeScript", "Design Systems", "DX"],
   stats: {
-    threadsOpened: 128,
-    acceptedAnswers: 46,
-    guidesPublished: 21,
-    totalSaves: 884,
+    threads: 128,
+    helpful: 884,
+    replies: 221,
+    topTopics: 15,
   },
 };
 
@@ -33,7 +34,6 @@ export const profilePageMock: ProfilePageData = {
       helpful: 64,
       replies: 12,
       saves: 34,
-      status: "Solved",
     },
     {
       id: "102",
@@ -49,7 +49,6 @@ export const profilePageMock: ProfilePageData = {
       helpful: 98,
       replies: 19,
       saves: 53,
-      status: "Reviewing",
     },
     {
       id: "103",

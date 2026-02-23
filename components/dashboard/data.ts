@@ -61,7 +61,6 @@ export const feedPosts: FeedPost[] = [
     helpful: 86,
     replies: 14,
     saves: 62,
-    status: "Reviewing",
   },
   {
     id: "2",
@@ -76,7 +75,6 @@ export const feedPosts: FeedPost[] = [
     helpful: 124,
     replies: 9,
     saves: 103,
-    status: "Solved",
   },
   {
     id: "3",
@@ -91,7 +89,6 @@ export const feedPosts: FeedPost[] = [
     helpful: 72,
     replies: 22,
     saves: 49,
-    status: "Reviewing",
   },
   {
     id: "4",
@@ -135,7 +132,6 @@ export const feedPosts: FeedPost[] = [
     helpful: 93,
     replies: 11,
     saves: 81,
-    status: "Solved",
   },
   {
     id: "7",
@@ -150,7 +146,6 @@ export const feedPosts: FeedPost[] = [
     helpful: 147,
     replies: 33,
     saves: 90,
-    status: "Reviewing",
   },
   {
     id: "8",

@@ -35,20 +35,32 @@ export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
               </div>
             )}
 
-            <div className="pt-7">
-              <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.name}</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{profile.handle}</p>
-              <p className="text-xs text-emerald-700 dark:text-emerald-300">{profile.role}</p>
+            <div className="pt-6">
+              <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {profile.name}
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {profile.handle}
+              </p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                {profile.role}
+              </p>
             </div>
           </div>
 
-          <Link
-            href="/settings"
-            className="mt-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            Edit Profile
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+          {profile.isOwnProfile ? (
+            <Link
+              href="/settings"
+              className="mt-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Edit Profile
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          ) : (
+            <span className="mt-2 inline-flex rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+              Public Profile
+            </span>
+          )}
         </div>
 
         <p className="mt-3 inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
@@ -56,7 +68,9 @@ export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
           {profile.location}
         </p>
 
-        <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">{profile.bio || "No bio added yet."}</p>
+        <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          {profile.bio || "No bio added yet."}
+        </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {profile.expertise.map((tag) => (

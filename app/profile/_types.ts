@@ -2,6 +2,7 @@ import type { FeedPost } from "@/components/dashboard/types";
 
 export type ProfileOverview = {
   id: string;
+  isOwnProfile: boolean;
   name: string;
   handle: string;
   role: string;
@@ -10,10 +11,10 @@ export type ProfileOverview = {
   bio: string;
   expertise: string[];
   stats: {
-    threadsOpened: number;
-    acceptedAnswers: number;
-    guidesPublished: number;
-    totalSaves: number;
+    threads: number;
+    helpful: number;
+    replies: number;
+    topTopics: number;
   };
 };
 

@@ -6,20 +6,20 @@ export function ProfileStatsCard({ profile }: { profile: ProfileOverview }) {
     <PanelCard className="p-4">
       <div className="grid grid-cols-2 gap-3 text-center md:grid-cols-4">
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.threadsOpened}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Threads Opened</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.threads}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Threads</p>
         </div>
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.acceptedAnswers}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Accepted Answers</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.helpful}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Helpful</p>
         </div>
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.guidesPublished}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Guides Published</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.replies}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Replies</p>
         </div>
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.totalSaves}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Total Saves</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profile.stats.topTopics}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Top Topics</p>
         </div>
       </div>
     </PanelCard>

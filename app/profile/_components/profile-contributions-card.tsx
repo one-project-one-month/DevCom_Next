@@ -49,7 +49,6 @@ export function ProfileContributionsCard({ contributions }: { contributions: Fee
               post={post}
               showAuthor={false}
               showCommentBox={false}
-              showThreadSnapshot={false}
             />
           ))}
         </div>

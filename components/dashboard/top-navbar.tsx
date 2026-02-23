@@ -1,41 +1,129 @@
-import { Bell, LayoutGrid, MessageCircle, Search, Sparkles } from "lucide-react";
+"use client";
 
-import { AvatarCircle, IconButton, PanelCard } from "@/components/dashboard/shared";
+import { useEffect, useState } from "react";
+import { Home, LayoutGrid, Menu, Search, Sparkles, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { cn } from "@/lib/utils";
 
-export function TopNavbar() {
+type TopNavbarProps = {
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
+};
+
+export function TopNavbar({
+  onToggleSidebar,
+  isSidebarOpen = false,
+}: TopNavbarProps) {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <PanelCard className="mb-6 flex items-center justify-between px-5 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
-          <Sparkles className="h-4 w-4" />
-        </div>
-        <p className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          DevLoop
-        </p>
-      </div>
+    <div
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 bg-amber-300  transition-all duration-300 sm:bg-transparent sm:backdrop-blur-0",
+        isScrolled
+          ? "bg-white/45 backdrop-blur-2xl dark:bg-slate-950/45"
+          : "bg-transparent backdrop-blur-0",
+      )}
+    >
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 h-10 bg-linear-to-b from-white/35 to-transparent transition-all duration-300 dark:from-slate-950/35 sm:hidden",
+          isScrolled ? "opacity-100" : "opacity-0",
+        )}
+      />
+      <div
+        className={cn(
+          "mx-auto w-full max-w-365 transition-all duration-300 ease-out",
+          isScrolled ? "px-2 pt-2 sm:px-3 sm:pt-2" : "px-0 pt-0",
+        )}
+      >
+        <PanelCard
+          className={cn(
+            "flex flex-wrap items-center gap-2.5 px-3 py-2.5 transition-all duration-300 ease-out sm:px-4 sm:py-2.5 lg:grid lg:grid-cols-[max-content_minmax(420px,620px)_max-content] lg:items-center lg:gap-4",
+            isScrolled
+              ? "rounded-2xl border-slate-200/70 bg-white/70 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-2xl dark:border-slate-700/70 dark:bg-slate-900/65"
+              : "rounded-none border-x-0 border-t-0 border-b border-slate-200/80 bg-white/95 shadow-none dark:border-slate-800/80 dark:bg-slate-950/95",
+          )}
+        >
+          <div className="flex items-center gap-2 lg:justify-self-start">
+            <IconButton
+              className={cn(
+                "inline-flex transition-transform duration-200 active:scale-95 max-[980px]:inline-flex min-[981px]:hidden",
+                isSidebarOpen
+                  ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                  : "",
+              )}
+              onClick={onToggleSidebar}
+              aria-label={
+                isSidebarOpen ? "Close sidebar menu" : "Open sidebar menu"
+              }
+              aria-expanded={isSidebarOpen}
+              aria-controls="mobile-left-sidebar"
+            >
+              <span className="relative block h-4 w-4">
+                <Menu
+                  className={cn(
+                    "absolute inset-0 h-4 w-4 transition-all duration-300 ease-out",
+                    isSidebarOpen
+                      ? "rotate-90 scale-75 opacity-0"
+                      : "rotate-0 scale-100 opacity-100",
+                  )}
+                />
+                <X
+                  className={cn(
+                    "absolute inset-0 h-4 w-4 transition-all duration-300 ease-out",
+                    isSidebarOpen
+                      ? "rotate-0 scale-100 opacity-100"
+                      : "-rotate-90 scale-75 opacity-0",
+                  )}
+                />
+              </span>
+            </IconButton>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              DevLoop
+            </p>
+          </div>
 
-      <div className="mx-6 flex max-w-md flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800">
-        <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-        <input
-          className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
-          placeholder="Search creators, posts, topics"
-        />
-      </div>
+          <div className="order-3 flex w-full items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 md:order-2 md:mx-4 md:max-w-md md:flex-1 lg:order-0 lg:mx-0 lg:max-w-none lg:flex-none">
+            <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+            <input
+              className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+              placeholder="Search creators, posts, topics"
+            />
+          </div>
 
-      <nav className="flex items-center gap-2">
-        <IconButton>
-          <LayoutGrid className="h-4 w-4" />
-        </IconButton>
-        <IconButton>
-          <MessageCircle className="h-4 w-4" />
-        </IconButton>
-        <IconButton>
-          <Bell className="h-4 w-4" />
-        </IconButton>
-        <AnimatedThemeToggler className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" />
-        <AvatarCircle className="ml-1 h-9 w-9" />
-      </nav>
-    </PanelCard>
+          <nav className="ml-auto flex items-center gap-1 sm:gap-2 md:order-3 lg:ml-0 lg:justify-self-end">
+            <IconButton className="hidden sm:inline-flex">
+              <LayoutGrid className="h-4 w-4" />
+            </IconButton>
+            <IconButton
+              onClick={() => router.push("/")}
+              aria-label="Go to feed"
+            >
+              <Home className="h-4 w-4" />
+            </IconButton>
+
+            <AnimatedThemeToggler className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" />
+          </nav>
+        </PanelCard>
+      </div>
+    </div>
   );
 }
