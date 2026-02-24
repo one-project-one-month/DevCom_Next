@@ -1,7 +1,5 @@
-import React from "react";
+import { AdminPageView } from "@/app/admin/_components/admin-page-view";
 
-const AdminPage = () => {
-  return <div>AdminPage</div>;
-};
-
-export default AdminPage;
+export default function AdminPage() {
+  return <AdminPageView />;
+}
