@@ -33,7 +33,7 @@ export function TopNavbar({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 top-0 z-50 bg-amber-300  transition-all duration-300 sm:bg-transparent sm:backdrop-blur-0",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300 sm:bg-transparent sm:backdrop-blur-0",
         isScrolled
           ? "bg-white/45 backdrop-blur-2xl dark:bg-slate-950/45"
           : "bg-transparent backdrop-blur-0",
@@ -47,7 +47,7 @@ export function TopNavbar({
       />
       <div
         className={cn(
-          "mx-auto w-full max-w-365 transition-all duration-300 ease-out",
+          "mx-auto w-full max-w-[1460px] transition-all duration-300 ease-out",
           isScrolled ? "px-2 pt-2 sm:px-3 sm:pt-2" : "px-0 pt-0",
         )}
       >
@@ -101,7 +101,7 @@ export function TopNavbar({
             </p>
           </div>
 
-          <div className="order-3 hidden w-full items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 min-[780px]:flex md:order-2 md:mx-4 md:max-w-md md:flex-1 lg:order-0 lg:mx-auto lg:max-w-155 lg:flex-1">
+          <div className="order-3 hidden w-full items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 min-[780px]:flex md:order-2 md:mx-4 md:max-w-md md:flex-1 lg:order-0 lg:mx-auto lg:max-w-[620px] lg:flex-1">
             <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
             <input
               className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -110,7 +110,10 @@ export function TopNavbar({
           </div>
 
           <nav className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:order-3 lg:ml-0">
-            <IconButton className="hidden sm:inline-flex">
+            <IconButton
+              className="hidden sm:inline-flex"
+              onClick={() => router.push("/admin")}
+            >
               <LayoutGrid className="h-4 w-4" />
             </IconButton>
             <IconButton

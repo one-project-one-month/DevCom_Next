@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -14,6 +17,7 @@ import {
 
 import { PanelCard } from "@/components/dashboard/shared";
 import type { FeedPost } from "@/components/dashboard/types";
+import { deletePost, markHelpfulPost, reportPost, savePost } from "@/components/dashboard/post-actions";
 import { cn } from "@/lib/utils";
 
 type FeedPostCardProps = {
@@ -22,6 +26,7 @@ type FeedPostCardProps = {
   showAuthor?: boolean;
   showCommentBox?: boolean;
   showOpenThreadAction?: boolean;
+  onDelete?: (postId: string) => void;
 };
 
 function profileHrefFromHandle(handle: string) {
@@ -51,7 +56,99 @@ export function FeedPostCard({
   showAuthor = true,
   showCommentBox = true,
   showOpenThreadAction = true,
+  onDelete,
 }: FeedPostCardProps) {
+  const [helpfulCount, setHelpfulCount] = useState(post.helpful);
+  const [savesCount, setSavesCount] = useState(post.saves);
+  const [isHelpful, setIsHelpful] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [isReported, setIsReported] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const postHref = useMemo(() => `/posts/${post.id}`, [post.id]);
+
+  async function handleHelpful() {
+    if (isDeleting) {
+      return;
+    }
+
+    const nextHelpful = !isHelpful;
+    setIsHelpful(nextHelpful);
+    setHelpfulCount((current) => Math.max(0, current + (nextHelpful ? 1 : -1)));
+
+    const result = await markHelpfulPost(post.id, nextHelpful);
+    if (!result.ok) {
+      setIsHelpful(!nextHelpful);
+      setHelpfulCount((current) => Math.max(0, current + (nextHelpful ? -1 : 1)));
+    }
+  }
+
+  async function handleSave() {
+    if (isDeleting) {
+      return;
+    }
+
+    const nextSaved = !isSaved;
+    setIsSaved(nextSaved);
+    setSavesCount((current) => Math.max(0, current + (nextSaved ? 1 : -1)));
+
+    const result = await savePost(post.id, nextSaved);
+    if (!result.ok) {
+      setIsSaved(!nextSaved);
+      setSavesCount((current) => Math.max(0, current + (nextSaved ? -1 : 1)));
+    }
+  }
+
+  async function handleDelete() {
+    if (!post.isOwnPost || isDeleting) {
+      return;
+    }
+
+    const confirmed = window.confirm("Delete this post?");
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    const result = await deletePost(post.id);
+    setIsDeleting(false);
+
+    if (result.ok) {
+      onDelete?.(post.id);
+    }
+  }
+
+  async function handleReport() {
+    if (isReported || isReporting || isDeleting) {
+      return;
+    }
+
+    setIsReporting(true);
+    const result = await reportPost(post.id);
+    setIsReporting(false);
+
+    if (result.ok) {
+      setIsReported(true);
+    }
+  }
+
+  async function handleCopyLink() {
+    const absoluteLink =
+      typeof window === "undefined" ? postHref : `${window.location.origin}${postHref}`;
+
+    try {
+      await navigator.clipboard.writeText(absoluteLink);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+
+    window.setTimeout(() => {
+      setCopyState("idle");
+    }, 1400);
+  }
+
   return (
     <PanelCard className={cn("p-4", className)}>
       <div className="mb-3 flex items-center justify-between">
@@ -122,21 +219,37 @@ export function FeedPostCard({
       ) : null}
 
       <div className="mb-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
-        <button className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+        <button
+          onClick={handleHelpful}
+          className={cn(
+            "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm transition",
+            isHelpful
+              ? "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200"
+              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100",
+          )}
+        >
           <BookOpenText className="h-4 w-4" />
-          {post.helpful} helpful
+          {helpfulCount} helpful
         </button>
         <button className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100">
           <MessageCircle className="h-4 w-4" />
           {post.replies} replies
         </button>
-        <button className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+        <button
+          onClick={handleSave}
+          className={cn(
+            "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm transition",
+            isSaved
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
+              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100",
+          )}
+        >
           <Bookmark className="h-4 w-4" />
-          {post.saves} saves
+          {savesCount} save
         </button>
         {showOpenThreadAction ? (
           <Link
-            href={`/posts/${post.id}`}
+            href={postHref}
             className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
             <FileCode2 className="h-4 w-4" />
@@ -148,27 +261,41 @@ export function FeedPostCard({
       <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-800">
         {post.isOwnPost ? (
           <>
-            <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100">
+            <Link
+              href={`/create-post?edit=${post.id}`}
+              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
               <PencilLine className="h-3.5 w-3.5" />
               Edit
-            </button>
+            </Link>
             <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100">
               Move to Draft
             </button>
-            <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10">
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-500/10"
+            >
               <Trash2 className="h-3.5 w-3.5" />
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </button>
           </>
         ) : (
-          <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-amber-700 transition hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10">
+          <button
+            onClick={handleReport}
+            disabled={isReporting || isReported}
+            className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
+          >
             <Flag className="h-3.5 w-3.5" />
-            Report to Admin
+            {isReported ? "Reported" : isReporting ? "Reporting..." : "Report to Admin"}
           </button>
         )}
-        <button className="ml-auto inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100">
+        <button
+          onClick={handleCopyLink}
+          className="ml-auto inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+        >
           <Copy className="h-3.5 w-3.5" />
-          Copy Link
+          {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy Link"}
         </button>
       </div>
 

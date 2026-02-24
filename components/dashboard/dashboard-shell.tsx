@@ -33,10 +33,10 @@ export function DashboardShell({
         <div className="h-18 sm:h-20" />
         <section
           className={cn(
-            "mx-auto grid h-[calc(100vh-80px)] w-full max-w-365 gap-3 px-3 sm:gap-4 sm:px-4 max-[980px]:h-auto max-[980px]:grid-cols-1",
+            "mx-auto grid h-[calc(100vh-80px)] w-full max-w-[1460px] gap-3 px-3 sm:gap-4 sm:px-4 max-[980px]:h-auto max-[980px]:grid-cols-1",
             hasRightSidebar
               ? "justify-center grid-cols-[250px_minmax(0,1fr)_270px] xl:grid-cols-[270px_minmax(0,780px)_290px]"
-              : "justify-center grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,860px)]",
+              : "justify-center grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1082px)]",
           )}
         >
           <div className="sticky top-0 h-fit self-start max-[980px]:hidden">
@@ -78,7 +78,7 @@ export function DashboardShell({
           <aside
             id="mobile-left-sidebar"
             className={cn(
-              "absolute left-0 top-0 h-full w-[86vw] max-w-90 overflow-y-auto border-r border-slate-200 bg-white p-3 shadow-2xl transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900",
+              "absolute left-0 top-0 h-full w-[86vw] max-w-[360px] overflow-y-auto border-r border-slate-200 bg-white p-3 shadow-2xl transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900",
               isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
             )}
           >
