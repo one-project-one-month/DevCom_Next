@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   BookOpenText,
   CircleHelp,
@@ -74,11 +77,17 @@ function PostCreatorCard() {
 }
 
 export function CenterFeed() {
+  const [posts, setPosts] = useState(feedPosts);
+
+  function handleDeletePost(postId: string) {
+    setPosts((current) => current.filter((item) => item.id !== postId));
+  }
+
   return (
     <section className="space-y-5">
       <PostCreatorCard />
-      {feedPosts.map((post) => (
-        <FeedPostCard key={post.id} post={post} />
+      {posts.map((post) => (
+        <FeedPostCard key={post.id} post={post} onDelete={handleDeletePost} />
       ))}
     </section>
   );

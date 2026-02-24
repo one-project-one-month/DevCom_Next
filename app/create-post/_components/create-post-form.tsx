@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, PenLine, Sparkles, Target } from "lucide-react";
 
-import { communityOptions, formatOptions } from "@/app/create-post/_data/create-post-options";
+import {
+  communityOptions,
+  formatOptions,
+} from "@/app/create-post/_data/create-post-options";
 import { ImageInput } from "@/app/create-post/_components/image-input";
 import { TagInput } from "@/app/create-post/_components/tag-input";
 import type {
@@ -12,6 +15,7 @@ import type {
   CreatePostValidationErrors,
   PostStatus,
 } from "@/app/create-post/_types";
+import { feedPosts } from "@/components/dashboard/data";
 import { PanelCard } from "@/components/dashboard/shared";
 
 const INITIAL_FORM: CreatePostFormData = {
@@ -25,7 +29,10 @@ const INITIAL_FORM: CreatePostFormData = {
   image: null,
 };
 
-function validateForm(form: CreatePostFormData, mode: PostStatus): CreatePostValidationErrors {
+function validateForm(
+  form: CreatePostFormData,
+  mode: PostStatus,
+): CreatePostValidationErrors {
   const errors: CreatePostValidationErrors = {};
 
   if (form.title.trim().length < 8 || form.title.trim().length > 120) {
@@ -45,13 +52,53 @@ function validateForm(form: CreatePostFormData, mode: PostStatus): CreatePostVal
   return errors;
 }
 
-export function CreatePostForm() {
-  const [form, setForm] = useState<CreatePostFormData>(INITIAL_FORM);
+type CreatePostFormProps = {
+  editId: string | null;
+};
+
+export function CreatePostForm({ editId }: CreatePostFormProps) {
+  const editingPost = useMemo(
+    () => (editId ? feedPosts.find((item) => item.id === editId) ?? null : null),
+    [editId],
+  );
+  const [form, setForm] = useState<CreatePostFormData>(() => {
+    if (!editingPost) {
+      return INITIAL_FORM;
+    }
+
+    return {
+      title: editingPost.title,
+      format: editingPost.format,
+      body: editingPost.content,
+      tags: [...editingPost.tags],
+      communityId: "",
+      notifyReplies: true,
+      notifyMentions: true,
+      image: null,
+    };
+  });
   const [errors, setErrors] = useState<CreatePostValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string>("");
+  const [statusMessage, setStatusMessage] = useState<string>(() => {
+    if (!editId) {
+      return "";
+    }
+
+    return editingPost ? "Editing existing post." : "Post not found for editing.";
+  });
   const [showPreview, setShowPreview] = useState(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
+    editingPost?.imageUrl ?? null,
+  );
+
+  const previewImageUrl = useMemo(() => {
+    if (!form.image) return null;
+    try {
+      return URL.createObjectURL(form.image);
+    } catch {
+      return null;
+    }
+  }, [form.image]);
 
   const bodyCount = useMemo(() => form.body.length, [form.body]);
   const completion = useMemo(() => {
@@ -66,28 +113,41 @@ export function CreatePostForm() {
 
   const requiredChecks = useMemo(() => {
     const checks = [
-      { key: "title", label: "Title (required)", done: form.title.trim().length >= 8, public: true },
-      { key: "body", label: "Body content (required)", done: form.body.trim().length >= 30, public: true },
-      { key: "tags", label: "At least 1 tag (required)", done: form.tags.length >= 1, public: true },
-      { key: "visibility", label: "Visibility is Public (always)", done: true, public: true },
+      {
+        key: "title",
+        label: "Title (required)",
+        done: form.title.trim().length >= 8,
+        public: true,
+      },
+      {
+        key: "body",
+        label: "Body content (required)",
+        done: form.body.trim().length >= 30,
+        public: true,
+      },
+      {
+        key: "tags",
+        label: "At least 1 tag (required)",
+        done: form.tags.length >= 1,
+        public: true,
+      },
+      {
+        key: "visibility",
+        label: "Visibility is Public (always)",
+        done: true,
+        public: true,
+      },
     ];
 
     return checks;
   }, [form]);
 
   useEffect(() => {
-    if (!form.image) {
-      setPreviewImageUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(form.image);
-    setPreviewImageUrl(objectUrl);
-
+    const url = previewImageUrl;
     return () => {
-      URL.revokeObjectURL(objectUrl);
+      if (url) URL.revokeObjectURL(url);
     };
-  }, [form.image]);
+  }, [previewImageUrl]);
 
   const submitForm = async (mode: PostStatus) => {
     const nextErrors = validateForm(form, mode);
@@ -105,7 +165,9 @@ export function CreatePostForm() {
 
     setIsSubmitting(false);
     setStatusMessage(
-      mode === "Draft" ? "Draft saved successfully." : "Post published successfully.",
+      mode === "Draft"
+        ? "Draft saved successfully."
+        : "Post published successfully.",
     );
   };
 
@@ -116,14 +178,15 @@ export function CreatePostForm() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h1 className="inline-flex items-center gap-2 text-lg font-semibold">
               <PenLine className="h-5 w-5" />
-              Create Knowledge Post
+              {editId ? "Edit Knowledge Post" : "Create Knowledge Post"}
             </h1>
             <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium">
               Completion {completion}%
             </span>
           </div>
           <p className="mt-1 text-sm text-blue-50">
-            Write a high-signal post with format guidance, tags, and publish checks.
+            Write a high-signal post with format guidance, tags, and publish
+            checks.
           </p>
         </div>
         <div className="grid gap-2 border-t border-slate-200 bg-white p-4 sm:grid-cols-4 dark:border-slate-700 dark:bg-slate-900">
@@ -148,27 +211,43 @@ export function CreatePostForm() {
         <PanelCard className="p-5">
           <div className="grid gap-5">
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Core Post Details</p>
+              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Core Post Details
+              </p>
 
               <div className="grid gap-4">
                 <label className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Title *</span>
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Title *
+                  </span>
                   <input
                     value={form.title}
-                    onChange={(event) => setForm({ ...form, title: event.target.value })}
+                    onChange={(event) =>
+                      setForm({ ...form, title: event.target.value })
+                    }
                     className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
                     placeholder="Write a clear, searchable title"
                   />
-                  {errors.title ? <span className="text-xs text-red-600 dark:text-red-300">{errors.title}</span> : null}
+                  {errors.title ? (
+                    <span className="text-xs text-red-600 dark:text-red-300">
+                      {errors.title}
+                    </span>
+                  ) : null}
                 </label>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="grid gap-1">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Format *</span>
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      Format *
+                    </span>
                     <select
                       value={form.format}
                       onChange={(event) =>
-                        setForm({ ...form, format: event.target.value as CreatePostFormData["format"] })
+                        setForm({
+                          ...form,
+                          format: event.target
+                            .value as CreatePostFormData["format"],
+                        })
                       }
                       className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
                     >
@@ -181,10 +260,14 @@ export function CreatePostForm() {
                   </label>
 
                   <label className="grid gap-1">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Community</span>
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      Community
+                    </span>
                     <select
                       value={form.communityId}
-                      onChange={(event) => setForm({ ...form, communityId: event.target.value })}
+                      onChange={(event) =>
+                        setForm({ ...form, communityId: event.target.value })
+                      }
                       className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
                     >
                       {communityOptions.map((option) => (
@@ -197,15 +280,22 @@ export function CreatePostForm() {
                 </div>
 
                 <label className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Content *</span>
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Content *
+                  </span>
                   <textarea
                     value={form.body}
-                    onChange={(event) => setForm({ ...form, body: event.target.value })}
+                    onChange={(event) =>
+                      setForm({ ...form, body: event.target.value })
+                    }
                     className="min-h-44 rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
                     placeholder="Write the main post content in markdown-friendly text"
                   />
                   <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <span>{errors.body ?? "Use clear context, constraints, and expected outcomes."}</span>
+                    <span>
+                      {errors.body ??
+                        "Use clear context, constraints, and expected outcomes."}
+                    </span>
                     <span>{bodyCount}/10000</span>
                   </div>
                 </label>
@@ -213,26 +303,51 @@ export function CreatePostForm() {
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Context & Metadata</p>
+              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Context & Metadata
+              </p>
               <div className="grid gap-4">
                 <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Tags *</span>
-                  <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
-                  {errors.tags ? <span className="text-xs text-red-600 dark:text-red-300">{errors.tags}</span> : null}
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Tags *
+                  </span>
+                  <TagInput
+                    tags={form.tags}
+                    onChange={(tags) => setForm({ ...form, tags })}
+                  />
+                  {errors.tags ? (
+                    <span className="text-xs text-red-600 dark:text-red-300">
+                      {errors.tags}
+                    </span>
+                  ) : null}
                 </div>
 
                 <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Attachments</span>
-                  <ImageInput image={form.image} onChange={(image) => setForm({ ...form, image })} />
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Attachments
+                  </span>
+                  <ImageInput
+                    image={form.image}
+                    onChange={(image) => {
+                      setForm({ ...form, image });
+                      if (!image) {
+                        setExistingImageUrl(null);
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Publishing Preferences</p>
+              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Publishing Preferences
+              </p>
               <div className="grid gap-4">
                 <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Visibility</span>
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                    Visibility
+                  </span>
                   <p className="h-11 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                     Public
                   </p>
@@ -244,7 +359,9 @@ export function CreatePostForm() {
                   <input
                     type="checkbox"
                     checked={form.notifyReplies}
-                    onChange={(event) => setForm({ ...form, notifyReplies: event.target.checked })}
+                    onChange={(event) =>
+                      setForm({ ...form, notifyReplies: event.target.checked })
+                    }
                   />
                   Notify me on replies
                 </label>
@@ -252,7 +369,9 @@ export function CreatePostForm() {
                   <input
                     type="checkbox"
                     checked={form.notifyMentions}
-                    onChange={(event) => setForm({ ...form, notifyMentions: event.target.checked })}
+                    onChange={(event) =>
+                      setForm({ ...form, notifyMentions: event.target.checked })
+                    }
                   />
                   Notify me on mentions
                 </label>
@@ -304,7 +423,9 @@ export function CreatePostForm() {
             </div>
 
             {statusMessage ? (
-              <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">{statusMessage}</p>
+              <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
+                {statusMessage}
+              </p>
             ) : null}
           </PanelCard>
 
@@ -315,9 +436,14 @@ export function CreatePostForm() {
             </p>
             <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
               {requiredChecks.map((check) => (
-                <li key={check.key} className="flex items-center justify-between gap-2">
+                <li
+                  key={check.key}
+                  className="flex items-center justify-between gap-2"
+                >
                   <span className="inline-flex items-center gap-2">
-                    <CheckCircle2 className={`h-3.5 w-3.5 ${check.done ? "text-emerald-600" : "text-slate-400"}`} />
+                    <CheckCircle2
+                      className={`h-3.5 w-3.5 ${check.done ? "text-emerald-600" : "text-slate-400"}`}
+                    />
                     {check.label}
                   </span>
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
@@ -330,15 +456,19 @@ export function CreatePostForm() {
 
           {showPreview ? (
             <PanelCard className="p-4">
-              <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">Live Preview</p>
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{form.title || "Untitled post"}</h2>
+              <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
+                Live Preview
+              </p>
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                {form.title || "Untitled post"}
+              </h2>
               <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
                 {form.body || "No content yet."}
               </p>
-              {previewImageUrl ? (
+              {previewImageUrl || existingImageUrl ? (
                 <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
                   <Image
-                    src={previewImageUrl}
+                    src={previewImageUrl ?? existingImageUrl ?? ""}
                     alt="Preview upload"
                     width={480}
                     height={280}
