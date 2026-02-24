@@ -4,7 +4,7 @@ export default function SettingsPage() {
   return (
     <RoutePlaceholderPage
       title="Settings"
-      description="This page will hold account, preferences, and notification control."
+      description="This page will hold account, preferences, and notification controls."
       sections={[
         {
           heading: "Goal",
