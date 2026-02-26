@@ -20,16 +20,28 @@ function ProfileCard({ pathname }: { pathname: string }) {
       <div className="h-16 bg-linear-to-r from-blue-500 to-indigo-500 sm:h-20" />
       <div className="px-4 pb-4 sm:px-5 sm:pb-5">
         <AvatarCircle className="-mt-7 mb-3 h-14 w-14 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">H.Hlaing Swan</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400">@hhlaing.swan</p>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+          H.Hlaing Swan
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          @hhlaing.swan
+        </p>
         <div className="mt-4 grid grid-cols-2 gap-3 text-center">
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">128</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Threads</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              128
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Threads
+            </p>
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">884</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Helpful</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              884
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Helpful
+            </p>
           </div>
         </div>
         <Link
@@ -82,10 +94,13 @@ function PublicProfileContextCard({ pathname }: { pathname: string }) {
 function ShortcutsCard({ pathname }: { pathname: string }) {
   return (
     <PanelCard className="p-3 sm:p-4">
-      <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Shortcuts</p>
+      <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+        Shortcuts
+      </p>
       <ul className="grid grid-cols-2 gap-1 sm:grid-cols-1 sm:gap-1">
         {shortcuts.map((item) => {
           const isActive = isRouteActive(pathname, item.href);
+          console.log(shortcuts);
 
           return (
             <li key={item.href}>

@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type PanelCardProps = {
   children: ReactNode;
   className?: string;
+  onClick?: () => void;
 };
 
 type AvatarCircleProps = {

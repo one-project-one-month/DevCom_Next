@@ -17,7 +17,12 @@ import {
 
 import { PanelCard } from "@/components/dashboard/shared";
 import type { FeedPost } from "@/components/dashboard/types";
-import { deletePost, markHelpfulPost, reportPost, savePost } from "@/components/dashboard/post-actions";
+import {
+  deletePost,
+  markHelpfulPost,
+  reportPost,
+  savePost,
+} from "@/components/dashboard/post-actions";
 import { cn } from "@/lib/utils";
 
 type FeedPostCardProps = {
@@ -65,8 +70,10 @@ export function FeedPostCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [isReported, setIsReported] = useState(false);
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
-  const postHref = useMemo(() => `/posts/${post.id}`, [post.id]);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
+    "idle",
+  );
+  const postHref = useMemo(() => `/PostDetail/${post.id}`, [post.id]);
 
   async function handleHelpful() {
     if (isDeleting) {
@@ -80,7 +87,9 @@ export function FeedPostCard({
     const result = await markHelpfulPost(post.id, nextHelpful);
     if (!result.ok) {
       setIsHelpful(!nextHelpful);
-      setHelpfulCount((current) => Math.max(0, current + (nextHelpful ? -1 : 1)));
+      setHelpfulCount((current) =>
+        Math.max(0, current + (nextHelpful ? -1 : 1)),
+      );
     }
   }
 
@@ -135,7 +144,9 @@ export function FeedPostCard({
 
   async function handleCopyLink() {
     const absoluteLink =
-      typeof window === "undefined" ? postHref : `${window.location.origin}${postHref}`;
+      typeof window === "undefined"
+        ? postHref
+        : `${window.location.origin}${postHref}`;
 
     try {
       await navigator.clipboard.writeText(absoluteLink);
@@ -163,7 +174,10 @@ export function FeedPostCard({
                 {post.name}
               </Link>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                <Link href={profileHrefFromHandle(post.handle)} className="hover:text-slate-700 dark:hover:text-slate-200">
+                <Link
+                  href={profileHrefFromHandle(post.handle)}
+                  className="hover:text-slate-700 dark:hover:text-slate-200"
+                >
                   {post.handle}
                 </Link>{" "}
                 • {post.time}
@@ -185,12 +199,14 @@ export function FeedPostCard({
         </div>
       </div>
 
-      <h3 className="mb-2 text-base font-semibold text-slate-900 dark:text-slate-100">
-        {post.title}
-      </h3>
-      <p className="mb-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-        {post.content}
-      </p>
+      <div className="group">
+        <h3 className="mb-2 hover:text-blue-600 dark:hover:text-blue-400 text-base font-semibold text-slate-900 dark:text-slate-100">
+          {post.title}
+        </h3>
+        <p className="mb-3 hover:text-slate-900 dark:hover:text-slate-100 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          {post.content}
+        </p>
+      </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300">
@@ -287,7 +303,11 @@ export function FeedPostCard({
             className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
           >
             <Flag className="h-3.5 w-3.5" />
-            {isReported ? "Reported" : isReporting ? "Reporting..." : "Report to Admin"}
+            {isReported
+              ? "Reported"
+              : isReporting
+                ? "Reporting..."
+                : "Report to Admin"}
           </button>
         )}
         <button
@@ -295,7 +315,11 @@ export function FeedPostCard({
           className="ml-auto inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
         >
           <Copy className="h-3.5 w-3.5" />
-          {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy Link"}
+          {copyState === "copied"
+            ? "Copied"
+            : copyState === "failed"
+              ? "Copy failed"
+              : "Copy Link"}
         </button>
       </div>
 
