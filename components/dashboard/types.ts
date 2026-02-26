@@ -20,6 +20,7 @@ export type SuggestedUser = {
 };
 
 export type FeedPost = {
+  status?: string;
   id: string;
   isOwnPost?: boolean;
   format: "Question" | "Guide" | "RFC" | "Build Log";

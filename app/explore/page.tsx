@@ -1,5 +1,5 @@
-import { ExplorePageView } from "@/app/explore/_components/explore-page-view";
+import { ExplorePageWrapper } from "@/app/explore/explore-page-wrapper";
 
 export default function ExplorePage() {
-  return <ExplorePageView />;
+  return <ExplorePageWrapper />;
 }
