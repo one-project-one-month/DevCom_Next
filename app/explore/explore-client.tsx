@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
     BookOpenText,
     MessageCircle,
@@ -151,42 +151,51 @@ export function ExploreClient({
     activeTag,
     onTagClick,
     searchQuery = "",
+    formatFilter = null,
+    onFormatChange,
+    onClearAll,
 }: {
     activeTag: string | null;
     onTagClick: (tag: string) => void;
     searchQuery?: string;
+    formatFilter?: string | null;
+    onFormatChange?: (format: string | null) => void;
+    onClearAll?: () => void;
 }) {
     const [tab, setTab] = useState<Tab>("posts");
-    const [formatFilter, setFormatFilter] = useState<string | null>(null);
 
     // Filter feedPosts by format and/or active tag and/or search query
-    const filteredPosts = feedPosts.filter((p) => {
-        if (formatFilter && p.format !== formatFilter) return false;
-        if (activeTag && !p.tags.some((t) => t.toLowerCase() === activeTag.toLowerCase())) return false;
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            const matchesTitle = p.title.toLowerCase().includes(query);
-            const matchesContent = p.content.toLowerCase().includes(query);
-            const matchesTags = p.tags.some((t) => t.toLowerCase().includes(query));
-            const matchesName = p.name.toLowerCase().includes(query);
-            if (!matchesTitle && !matchesContent && !matchesTags && !matchesName) return false;
-        }
-        return true;
-    });
+    const filteredPosts = useMemo(() => {
+        return feedPosts.filter((p) => {
+            if (formatFilter && p.format !== formatFilter) return false;
+            if (activeTag && !p.tags.some((t) => t.toLowerCase() === activeTag.toLowerCase())) return false;
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                const matchesTitle = p.title.toLowerCase().includes(query);
+                const matchesContent = p.content.toLowerCase().includes(query);
+                const matchesTags = p.tags.some((t) => t.toLowerCase().includes(query));
+                const matchesName = p.name.toLowerCase().includes(query);
+                if (!matchesTitle && !matchesContent && !matchesTags && !matchesName) return false;
+            }
+            return true;
+        });
+    }, [formatFilter, activeTag, searchQuery]);
 
     // Filter suggestions by search query
-    const filteredPeople = suggestions.filter((s) => {
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            const matchesName = s.name.toLowerCase().includes(query);
-            const matchesHandle = s.handle.toLowerCase().includes(query);
-            const matchesFocus = s.focus.toLowerCase().includes(query);
-            if (!matchesName && !matchesHandle && !matchesFocus) return false;
-        }
-        return true;
-    });
+    const filteredPeople = useMemo(() => {
+        return suggestions.filter((s) => {
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                const matchesName = s.name.toLowerCase().includes(query);
+                const matchesHandle = s.handle.toLowerCase().includes(query);
+                const matchesFocus = s.focus.toLowerCase().includes(query);
+                if (!matchesName && !matchesHandle && !matchesFocus) return false;
+            }
+            return true;
+        });
+    }, [searchQuery]);
 
-    const hasActiveFilters = Boolean(activeTag || formatFilter);
+    const hasActiveFilters = useMemo(() => Boolean(activeTag || formatFilter || searchQuery), [activeTag, formatFilter, searchQuery]);
     const formats: FeedPost["format"][] = ["Question", "Guide", "RFC", "Build Log"];
 
     return (
@@ -215,12 +224,30 @@ export function ExploreClient({
                 ))}
             </div>
 
+            {/* Results Header */}
+            {hasActiveFilters && (
+                <div className="px-1">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Showing {tab === "posts" ? filteredPosts.length : filteredPeople.length} {tab}
+                        {searchQuery && <span> for <span className="font-semibold text-slate-900 dark:text-slate-100 italic">"{searchQuery}"</span></span>}
+                    </p>
+                </div>
+            )}
+
             {/* Active filters */}
             {hasActiveFilters && (
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                         <SlidersHorizontal className="h-3.5 w-3.5" /> Filters:
                     </span>
+                    {searchQuery && (
+                        <button
+                            onClick={() => onClearAll?.()}
+                            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        >
+                            Search: {searchQuery} <X className="h-3 w-3" />
+                        </button>
+                    )}
                     {activeTag && (
                         <button
                             onClick={() => onTagClick(activeTag)}
@@ -231,14 +258,14 @@ export function ExploreClient({
                     )}
                     {formatFilter && (
                         <button
-                            onClick={() => setFormatFilter(null)}
+                            onClick={() => onFormatChange?.(null)}
                             className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 transition hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
                         >
                             {formatFilter} <X className="h-3 w-3" />
                         </button>
                     )}
                     <button
-                        onClick={() => { if (activeTag) onTagClick(activeTag); setFormatFilter(null); }}
+                        onClick={onClearAll}
                         className="ml-auto text-xs text-slate-500 underline underline-offset-2 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                     >
                         Clear all
@@ -252,7 +279,7 @@ export function ExploreClient({
                     {formats.map((f) => (
                         <button
                             key={f}
-                            onClick={() => setFormatFilter((prev) => (prev === f ? null : f))}
+                            onClick={() => onFormatChange?.(f)}
                             className={cn(
                                 "rounded-full border px-3 py-1.5 text-xs font-medium transition",
                                 formatFilter === f
@@ -270,7 +297,7 @@ export function ExploreClient({
             {tab === "posts" ? (
                 filteredPosts.length > 0 ? (
                     <div className="space-y-4">
-                        {filteredPosts.map((post) => <PostCard key={post.id} post={post} />)}
+                        {filteredPosts.map((post: FeedPost) => <PostCard key={post.id} post={post} />)}
                     </div>
                 ) : (
                     <PanelCard className="py-16 text-center">
@@ -279,7 +306,7 @@ export function ExploreClient({
                 )
             ) : (
                 <div className="space-y-4">
-                    {filteredPeople.map((person) => <PeopleCard key={person.handle} person={person} />)}
+                    {filteredPeople.map((person: SuggestedUser) => <PeopleCard key={person.handle} person={person} />)}
                 </div>
             )}
         </section>

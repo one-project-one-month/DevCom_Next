@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Home, LayoutGrid, Menu, Search, Sparkles, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -18,8 +18,20 @@ export function TopNavbar({
   isSidebarOpen = false,
 }: TopNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Sync searchQuery with URL 'q' parameter
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) {
+      setSearchQuery(q);
+    } else {
+      setSearchQuery("");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -115,9 +127,25 @@ export function TopNavbar({
                 }
               }}
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                aria-label="Clear search"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
           <nav className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:order-3 lg:ml-0">
+            <IconButton
+              className="inline-flex min-[780px]:hidden"
+              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+              aria-label="Toggle mobile search"
+            >
+              <Search className="h-4 w-4" />
+            </IconButton>
             <IconButton
               className="hidden sm:inline-flex"
               onClick={() => router.push("/admin")}
@@ -133,6 +161,34 @@ export function TopNavbar({
 
             <AnimatedThemeToggler className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" />
           </nav>
+
+          {/* Mobile Search Overlay */}
+          {isMobileSearchOpen && (
+            <div className="order-4 flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 mt-2 dark:border-slate-700 dark:bg-slate-800 min-[780px]:hidden">
+              <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <input
+                autoFocus
+                className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchQuery.trim()) {
+                    router.push(`/explore?q=${encodeURIComponent(searchQuery.trim().toLowerCase())}`);
+                    setIsMobileSearchOpen(false);
+                  }
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="rounded-full p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </PanelCard>
       </div>
     </div>
