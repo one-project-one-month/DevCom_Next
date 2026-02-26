@@ -150,22 +150,41 @@ function PeopleCard({ person }: { person: SuggestedUser }) {
 export function ExploreClient({
     activeTag,
     onTagClick,
+    searchQuery = "",
 }: {
     activeTag: string | null;
     onTagClick: (tag: string) => void;
+    searchQuery?: string;
 }) {
     const [tab, setTab] = useState<Tab>("posts");
     const [formatFilter, setFormatFilter] = useState<string | null>(null);
 
-    // Filter feedPosts by format and/or active tag
+    // Filter feedPosts by format and/or active tag and/or search query
     const filteredPosts = feedPosts.filter((p) => {
         if (formatFilter && p.format !== formatFilter) return false;
         if (activeTag && !p.tags.some((t) => t.toLowerCase() === activeTag.toLowerCase())) return false;
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchesTitle = p.title.toLowerCase().includes(query);
+            const matchesContent = p.content.toLowerCase().includes(query);
+            const matchesTags = p.tags.some((t) => t.toLowerCase().includes(query));
+            const matchesName = p.name.toLowerCase().includes(query);
+            if (!matchesTitle && !matchesContent && !matchesTags && !matchesName) return false;
+        }
         return true;
     });
 
-    // Filter suggestions by active tag (suggestions have no tags, so tag filter shows all)
-    const filteredPeople = suggestions;
+    // Filter suggestions by search query
+    const filteredPeople = suggestions.filter((s) => {
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchesName = s.name.toLowerCase().includes(query);
+            const matchesHandle = s.handle.toLowerCase().includes(query);
+            const matchesFocus = s.focus.toLowerCase().includes(query);
+            if (!matchesName && !matchesHandle && !matchesFocus) return false;
+        }
+        return true;
+    });
 
     const hasActiveFilters = Boolean(activeTag || formatFilter);
     const formats: FeedPost["format"][] = ["Question", "Guide", "RFC", "Build Log"];

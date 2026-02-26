@@ -18,6 +18,7 @@ export function TopNavbar({
   isSidebarOpen = false,
 }: TopNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -106,6 +107,13 @@ export function TopNavbar({
             <input
               className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
               placeholder="Search creators, posts, topics"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  router.push(`/explore?q=${encodeURIComponent(searchQuery.trim().toLowerCase())}`);
+                }
+              }}
             />
           </div>
 
