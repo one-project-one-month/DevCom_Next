@@ -18,10 +18,10 @@ import {
 } from "lucide-react";
 
 export function FilterComment() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
+  const [filter, setfilter] = React.useState({
+    top: true,
+    recent: false,
+    oldest: false,
   });
 
   return (
@@ -31,35 +31,52 @@ export function FilterComment() {
           <ChevronsUpDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48">
+      <DropdownMenuContent className="w-80 p-2">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Notification Preferences</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-base font-semibold p-2">
+            Sort Discussion:
+          </DropdownMenuLabel>
           <DropdownMenuCheckboxItem
-            checked={notifications.email}
+            checked={filter.top}
             onCheckedChange={(checked) =>
-              setNotifications({ ...notifications, email: checked === true })
+              setfilter({ top: checked === true, recent: false, oldest: false })
             }
           >
-            <MailIcon />
-            Email notifications
+            <div>
+              <div className="text-base font-semibold">Top</div>
+              <div className="text-xs text-slate-500">
+                Most relevant comments are shown first, based on factors like
+                upvotes and replies.
+              </div>
+            </div>
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={notifications.sms}
+            checked={filter.recent}
             onCheckedChange={(checked) =>
-              setNotifications({ ...notifications, sms: checked === true })
+              setfilter({ top: false, recent: checked === true, oldest: false })
             }
           >
-            <MessageSquareIcon />
-            SMS notifications
+            <div>
+              <div className="text-base font-semibold">Most Recent</div>
+              <div className="text-xs text-slate-500">
+                Comments are displayed in chronological order, with the newest
+                comments appearing first.
+              </div>
+            </div>
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={notifications.push}
+            checked={filter.oldest}
             onCheckedChange={(checked) =>
-              setNotifications({ ...notifications, push: checked === true })
+              setfilter({ top: false, recent: false, oldest: checked === true })
             }
           >
-            <BellIcon />
-            Push notifications
+            <div>
+              <div className="text-base font-semibold">Oldest First</div>
+              <div className="text-xs text-slate-500">
+                Comments are displayed in chronological order, with the oldest
+                comments appearing first.
+              </div>
+            </div>
           </DropdownMenuCheckboxItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
