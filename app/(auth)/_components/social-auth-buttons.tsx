@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Github, LoaderCircle } from "lucide-react";
 
+import { startOAuthLogin } from "@/lib/auth/client";
+
 function GoogleMark() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -20,33 +22,41 @@ type SocialAuthButtonsProps = {
 
 export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
   const [providerLoading, setProviderLoading] = useState<"google" | "github" | null>(null);
+  const [error, setError] = useState("");
 
-  async function handleProvider(provider: "google" | "github") {
+  function handleProvider(provider: "google" | "github") {
+    setError("");
     setProviderLoading(provider);
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    setProviderLoading(null);
+    const result = startOAuthLogin(provider, "/");
+    if (!result.ok) {
+      setProviderLoading(null);
+      setError(result.error ?? "Provider login failed.");
+    }
   }
 
   const label = mode === "login" ? "Continue with" : "Sign up with";
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <button
-        type="button"
-        onClick={() => handleProvider("google")}
-        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        {providerLoading === "google" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <GoogleMark />}
-        {label} Google
-      </button>
-      <button
-        type="button"
-        onClick={() => handleProvider("github")}
-        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        {providerLoading === "github" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Github className="h-4 w-4" />}
-        {label} GitHub
-      </button>
+    <div className="space-y-2">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => handleProvider("google")}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          {providerLoading === "google" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <GoogleMark />}
+          {label} Google
+        </button>
+        <button
+          type="button"
+          onClick={() => handleProvider("github")}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          {providerLoading === "github" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Github className="h-4 w-4" />}
+          {label} GitHub
+        </button>
+      </div>
+      {error ? <p className="text-xs text-red-600 dark:text-red-300">{error}</p> : null}
     </div>
   );
 }

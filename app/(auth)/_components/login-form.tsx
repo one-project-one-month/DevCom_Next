@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, KeyRound, LoaderCircle, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { SocialAuthButtons } from "@/app/(auth)/_components/social-auth-buttons";
+import { loginWithEmail } from "@/lib/auth/client";
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -30,9 +33,16 @@ export function LoginForm() {
     }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    const result = await loginWithEmail({ email, password, rememberMe });
     setLoading(false);
-    setSuccess("Login successful (mock). Wire this to your auth API.");
+
+    if (!result.ok) {
+      setError(result.error ?? "Login failed.");
+      return;
+    }
+
+    setSuccess("Login successful.");
+    router.push("/");
   }
 
   return (
