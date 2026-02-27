@@ -18,7 +18,7 @@ export default function CommentSection() {
         </div>
       </div>
 
-      <div className="flex gap-4 mt-5 mb-10">
+      <div className="flex gap-4 mt-5 mb-10" id="comment-editor">
         <Avatar className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 mb-2">
           <img
             src="https://avatars.githubusercontent.com/u/12345678?v=4"
