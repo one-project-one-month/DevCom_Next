@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const CommentEditor = ({ editor }: { editor: Editor | null }) => {
-  if (!editor) return null;
+  if (!editor) return;
 
   const editorState = useEditorState({
     editor,
