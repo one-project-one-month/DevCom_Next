@@ -19,19 +19,17 @@ export function TopNavbar({
 }: TopNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentQ = searchParams.get("q") || "";
+  const [searchQuery, setSearchQuery] = useState(currentQ);
+  const [prevQ, setPrevQ] = useState(currentQ);
 
-  // Sync searchQuery with URL 'q' parameter
-  useEffect(() => {
-    const q = searchParams.get("q");
-    if (q) {
-      setSearchQuery(q);
-    } else {
-      setSearchQuery("");
-    }
-  }, [searchParams]);
+  // Sync searchQuery with URL 'q' parameter during render
+  if (currentQ !== prevQ) {
+    setPrevQ(currentQ);
+    setSearchQuery(currentQ);
+  }
 
   useEffect(() => {
     const onScroll = () => {
