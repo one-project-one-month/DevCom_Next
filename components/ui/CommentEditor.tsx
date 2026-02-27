@@ -12,7 +12,7 @@ import {
   Highlighter,
 } from "lucide-react";
 
-export const CommentEditor = ({ editor }: { editor: Editor | null }) => {
+export const CommentEditor = ({ editor }: { editor: Editor}) => {
   const editorState = useEditorState({
     editor,
     selector: menuBarStateSelector,

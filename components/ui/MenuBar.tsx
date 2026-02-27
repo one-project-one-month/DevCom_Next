@@ -3,7 +3,7 @@ import type { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { menuBarStateSelector } from "./menuBarState";
 
-export const MenuBar = ({ editor }: { editor: Editor | null }) => {
+export const MenuBar = ({ editor }: { editor: Editor }) => {
   const editorState = useEditorState({
     editor,
     selector: menuBarStateSelector,
