@@ -10,12 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  BellIcon,
-  ChevronsUpDown,
-  MailIcon,
-  MessageSquareIcon,
-} from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 
 export function FilterComment() {
   const [filter, setfilter] = React.useState({

@@ -4,6 +4,7 @@ import profile from "@/assets/img/default.png";
 import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import Image from "next/image";
 
 export const ProfileSection = () => {
   const [save, setSave] = React.useState(false);
@@ -11,7 +12,12 @@ export const ProfileSection = () => {
     <div className="flex items-center  justify-between bg-slate-100 dark:bg-slate-800 p-4 rounded-md">
       <div className="flex items-center gap-3">
         <Avatar size="lg">
-          <img src={profile.src ?? profile} alt="User Avatar" />
+          <Image
+            src={profile.src ?? profile}
+            alt="User Avatar"
+            width={500}
+            height={500}
+          />
         </Avatar>
         <div>
           <p className="text-sm font-medium">John Doe</p>

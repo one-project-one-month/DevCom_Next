@@ -1,10 +1,10 @@
 "use client";
 
 import { FilterComment } from "./FilterComment";
-import { Avatar } from "@/components/ui/avatar";
 import { Field } from "@/components/ui/field";
 import PostComments from "./PostComments";
 import CommentEditorSection from "./CommentEditorSection";
+import Image from "next/image";
 
 export default function CommentSection() {
   return (
@@ -19,12 +19,13 @@ export default function CommentSection() {
       </div>
 
       <div className="flex gap-4 mt-5 mb-10" id="comment-editor">
-        <Avatar className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 mb-2">
-          <img
-            src="https://avatars.githubusercontent.com/u/12345678?v=4"
-            alt="User Avatar"
-          />
-        </Avatar>
+        <Image
+          width={500}
+          height={500}
+          src="https://avatars.githubusercontent.com/u/12345678?v=4"
+          alt="User Avatar"
+          className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 mb-2"
+        />
         <Field>
           <CommentEditorSection />
         </Field>

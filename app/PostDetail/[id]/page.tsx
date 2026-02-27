@@ -17,7 +17,7 @@ export default function PostDetail() {
         </div>
 
         {/* Main Content - PanelCard */}
-        <PanelCard className="flex-grow w-full mx-auto">
+        <PanelCard className="grow w-full mx-auto">
           <Image
             src={tiptapImg}
             alt="Post Image"

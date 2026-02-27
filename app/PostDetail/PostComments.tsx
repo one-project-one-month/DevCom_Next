@@ -15,6 +15,7 @@ import {
 import { ChevronsUpDown, Heart, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import CommentEditorSection from "./CommentEditorSection";
+import Image from "next/image";
 
 export default function PostComments() {
   const [isOpen, setIsOpen] = useState(true);
@@ -41,7 +42,9 @@ export default function PostComments() {
         >
           <div className=" items-center justify-between gap-4 ">
             <Avatar className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 mb-2">
-              <img
+              <Image
+                width={500}
+                height={500}
                 src="https://avatars.githubusercontent.com/u/12345678?v=4"
                 alt="User Avatar"
               />

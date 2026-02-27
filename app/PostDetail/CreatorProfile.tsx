@@ -1,5 +1,4 @@
 import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
-import {  Link,  } from "lucide-react";
 
 export default function CreatorProfile() {
   return (
@@ -31,9 +30,7 @@ export default function CreatorProfile() {
             </p>
           </div>
         </div>
-        <div
-          className="mt-4 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition sm:py-2.5 bg-blue-600 text-white hover:bg-blue-700"
-        >
+        <div className="mt-4 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition sm:py-2.5 bg-blue-600 text-white hover:bg-blue-700">
           View Profile
         </div>
       </div>
