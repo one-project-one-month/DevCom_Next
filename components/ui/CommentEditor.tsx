@@ -13,12 +13,14 @@ import {
 } from "lucide-react";
 
 export const CommentEditor = ({ editor }: { editor: Editor | null }) => {
-  if (!editor) return;
-
   const editorState = useEditorState({
     editor,
     selector: menuBarStateSelector,
   });
+
+  if (!editor) {
+    return null;
+  }
 
   const toggleHighlight = () => {
     if (editor.isActive("highlight")) {

@@ -2,7 +2,7 @@ import Image from "next/image";
 import CommentSection from "../CommentSection";
 import PostContent from "../PostContent";
 import { ProfileSection } from "../ProfileSection";
-import py from "@/assets/img/py.svg";
+import tiptapImg from "@/assets/img/tiptap.png";
 import { PanelCard } from "@/components/dashboard/shared";
 import CreatorProfile from "../CreatorProfile";
 import Reaction from "../Reaction";
@@ -19,7 +19,7 @@ export default function PostDetail() {
         {/* Main Content - PanelCard */}
         <PanelCard className="flex-grow w-full mx-auto">
           <Image
-            src={py}
+            src={tiptapImg}
             alt="Post Image"
             className="rounded-t-md rounded-b-none w-full border border-slate-200 dark:border-slate-700"
           />
@@ -38,4 +38,3 @@ export default function PostDetail() {
     </div>
   );
 }
-
