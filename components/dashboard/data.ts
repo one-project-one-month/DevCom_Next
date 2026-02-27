@@ -1,4 +1,4 @@
-import { Compass, ListChecks, Settings, Users } from "lucide-react";
+import { Compass, Home, ListChecks, Settings, Users } from "lucide-react";
 
 import type {
   ActivityItem,
@@ -42,9 +42,17 @@ export const activities: ActivityItem[] = [
 ];
 
 export const suggestions: SuggestedUser[] = [
-  { name: "Ariana Wells", handle: "@ariana.dev", focus: "Frontend architecture" },
+  {
+    name: "Ariana Wells",
+    handle: "@ariana.dev",
+    focus: "Frontend architecture",
+  },
   { name: "Leo Martinez", handle: "@leocodes", focus: "DevOps and CI/CD" },
-  { name: "Kaito Sato", handle: "@kaito.builds", focus: "Performance engineering" },
+  {
+    name: "Kaito Sato",
+    handle: "@kaito.builds",
+    focus: "Performance engineering",
+  },
 ];
 
 export const feedPosts: FeedPost[] = [
@@ -111,7 +119,8 @@ export const feedPosts: FeedPost[] = [
     name: "Ariana Wells",
     handle: "@ariana.dev",
     time: "7h",
-    title: "What code review policies improved velocity without lowering quality?",
+    title:
+      "What code review policies improved velocity without lowering quality?",
     content:
       "Interested in real policies that reduced cycle time, not theory. Especially around reviewer assignment and max PR size.",
     tags: ["Engineering Process", "Code Review", "Team Ops"],

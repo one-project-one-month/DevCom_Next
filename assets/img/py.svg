@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="137.80035mm"
+   height="67.355042mm"
+   viewBox="0 0 137.80035 67.355042"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   sodipodi:docname="python-interpreter.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1"
+     inkscape:cx="280"
+     inkscape:cy="200"
+     inkscape:window-width="1616"
+     inkscape:window-height="817"
+     inkscape:window-x="164"
+     inkscape:window-y="91"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <rect
+       x="56"
+       y="607"
+       width="132"
+       height="40"
+       id="rect37" />
+    <marker
+       style="overflow:visible"
+       id="ConcaveTriangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Concave triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path7" />
+    </marker>
+    <rect
+       x="465"
+       y="372"
+       width="107"
+       height="117"
+       id="rect31" />
+    <rect
+       x="465"
+       y="372"
+       width="84"
+       height="124"
+       id="rect34" />
+    <rect
+       x="56"
+       y="607"
+       width="151"
+       height="75"
+       id="rect38" />
+    <rect
+       x="56"
+       y="607"
+       width="196"
+       height="103"
+       id="rect39" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-32.440418,-95.411247)">
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect1"
+       width="19.579166"
+       height="28.045828"
+       x="33.072918"
+       y="127.79375" />
+    <rect
+       style="opacity:1;fill:none;stroke:#1a1a1a;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect2"
+       width="13.780847"
+       height="6.73843"
+       x="35.735638"
+       y="144.19792" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 37.835415,144.80027 v -2.9836"
+       id="path2"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 39.422916,144.80027 v -2.9836"
+       id="path15"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.010417,144.80027 v -2.9836"
+       id="path16"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 42.597918,144.80027 v -2.9836"
+       id="path17"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 44.185419,144.80027 v -2.9836"
+       id="path18"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 45.77292,144.80027 v -2.9836"
+       id="path19"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 47.360423,144.80027 v -2.9836"
+       id="path20"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 37.835415,153.26699 v -2.9836"
+       id="path21"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 39.422916,153.26699 v -2.9836"
+       id="path22"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.010417,153.26699 v -2.9836"
+       id="path23"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 42.597918,153.26699 v -2.9836"
+       id="path24"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 44.185419,153.26699 v -2.9836"
+       id="path25"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 45.77292,153.26699 v -2.9836"
+       id="path26"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 47.360423,153.26699 v -2.9836"
+       id="path27"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect27"
+       width="4.4979148"
+       height="4.4979091"
+       x="36.247913"
+       y="132.02708" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect28"
+       width="6.3499985"
+       height="6.3499932"
+       x="43.127087"
+       y="132.02708" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect29"
+       width="28.839582"
+       height="35.71875"
+       x="71.4375"
+       y="109.00833" />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:1.265;stroke-linecap:square;stroke-linejoin:round"
+       id="rect30"
+       width="28.839582"
+       height="35.71875"
+       x="120.91458"
+       y="96.043747" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-0.26458334,0)"
+       id="text30"
+       style="font-size:18.6667px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:none;word-spacing:0px;white-space:pre;shape-inside:url(#rect31);display:inline"><tspan
+         x="465"
+         y="388.40628"
+         id="tspan2"><tspan
+           style="font-size:16px"
+           id="tspan1">def foo(n):
+</tspan></tspan><tspan
+         x="465"
+         y="411.73965"
+         id="tspan4"><tspan
+           style="font-size:16px"
+           id="tspan3">  i = n
+</tspan></tspan><tspan
+         x="465"
+         y="435.07303"
+         id="tspan6"><tspan
+           style="font-size:16px"
+           id="tspan5">  i += 2
+</tspan></tspan><tspan
+         x="465"
+         y="458.4064"
+         id="tspan8"><tspan
+   style="font-size:16px"
+   id="tspan7">  if n &lt;</tspan>
+</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-47.095832,12.699999)"
+       id="text34"
+       style="font-size:18.6667px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:none;word-spacing:0px;white-space:pre;shape-inside:url(#rect34);display:inline"><tspan
+         x="465"
+         y="388.40628"
+         id="tspan10"><tspan
+           style="font-size:16px"
+           id="tspan9">010010
+</tspan></tspan><tspan
+         x="465"
+         y="411.73965"
+         id="tspan12"><tspan
+           style="font-size:16px"
+           id="tspan11">101001
+</tspan></tspan><tspan
+         x="465"
+         y="435.07303"
+         id="tspan14"><tspan
+           style="font-size:16px"
+           id="tspan13">111010
+</tspan></tspan><tspan
+         x="465"
+         y="458.4064"
+         id="tspan16"><tspan
+           style="font-size:16px"
+           id="tspan15">100101
+</tspan></tspan><tspan
+         x="465"
+         y="481.73978"
+         id="tspan18"><tspan
+           style="font-size:16px"
+           id="tspan17">010010</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:0.965;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="M 47.889583,148.16666 70.643749,129.38125"
+       id="path34" />
+    <path
+       style="fill:none;stroke:#b3b3b3;stroke-width:0.965;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="M 99.747916,128.05833 120.65,112.7125"
+       id="path35"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#b3b3b3;stroke-width:0.965;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="M 99.747916,128.05833 120.12083,117.73958"
+       id="path36"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:0.965;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="M 99.747916,128.05833 119.85625,122.2375"
+       id="path37"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,17.727084,-2.38125)"
+       id="text37"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;white-space:pre;shape-inside:url(#rect37);display:inline"><tspan
+         x="56"
+         y="621.0625"
+         id="tspan19">Computer
+</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,57.679167,-13.49375)"
+       id="text38"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;white-space:pre;shape-inside:url(#rect38);display:inline"><tspan
+         x="56"
+         y="621.0625"
+         id="tspan20">Python </tspan><tspan
+         x="56"
+         y="641.0625"
+         id="tspan21">Interpreter
+</tspan><tspan
+         x="56"
+         y="661.0625"
+         id="tspan22">(e.g. python3)</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,107.15625,-25.929167)"
+       id="text39"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:none;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;word-spacing:0px;white-space:pre;shape-inside:url(#rect39);display:inline"><tspan
+         x="56"
+         y="621.0625"
+         id="tspan23">Our code written in </tspan><tspan
+         x="56"
+         y="641.0625"
+         id="tspan24">Python
+</tspan><tspan
+         x="56"
+         y="661.0625"
+         id="tspan25">(e.g. main.py)</tspan></text>
+  </g>
+</svg>
