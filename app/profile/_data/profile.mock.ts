@@ -23,7 +23,7 @@ export const profilePageMock: ProfilePageData = {
     {
       id: "101",
       isOwnPost: true,
-      format: "Build Log",
+      postType: "Post",
       name: profile.name,
       handle: profile.handle,
       time: "2h",
@@ -38,7 +38,7 @@ export const profilePageMock: ProfilePageData = {
     {
       id: "102",
       isOwnPost: true,
-      format: "Guide",
+      postType: "Post",
       name: profile.name,
       handle: profile.handle,
       time: "9h",
@@ -53,7 +53,7 @@ export const profilePageMock: ProfilePageData = {
     {
       id: "103",
       isOwnPost: true,
-      format: "Question",
+      postType: "Post",
       name: profile.name,
       handle: profile.handle,
       time: "1d",

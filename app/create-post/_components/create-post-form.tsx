@@ -4,10 +4,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, PenLine, Sparkles, Target } from "lucide-react";
 
-import {
-  communityOptions,
-  formatOptions,
-} from "@/app/create-post/_data/create-post-options";
 import { ImageInput } from "@/app/create-post/_components/image-input";
 import { TagInput } from "@/app/create-post/_components/tag-input";
 import type {
@@ -20,7 +16,7 @@ import { PanelCard } from "@/components/dashboard/shared";
 
 const INITIAL_FORM: CreatePostFormData = {
   title: "",
-  format: "Question",
+  postType: "Post",
   body: "",
   tags: [],
   communityId: "",
@@ -58,7 +54,8 @@ type CreatePostFormProps = {
 
 export function CreatePostForm({ editId }: CreatePostFormProps) {
   const editingPost = useMemo(
-    () => (editId ? feedPosts.find((item) => item.id === editId) ?? null : null),
+    () =>
+      editId ? (feedPosts.find((item) => item.id === editId) ?? null) : null,
     [editId],
   );
   const [form, setForm] = useState<CreatePostFormData>(() => {
@@ -68,7 +65,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
 
     return {
       title: editingPost.title,
-      format: editingPost.format,
+      postType: editingPost.postType,
       body: editingPost.content,
       tags: [...editingPost.tags],
       communityId: "",
@@ -84,7 +81,9 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
       return "";
     }
 
-    return editingPost ? "Editing existing post." : "Post not found for editing.";
+    return editingPost
+      ? "Editing existing post."
+      : "Post not found for editing.";
   });
   const [showPreview, setShowPreview] = useState(false);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
@@ -185,25 +184,9 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
             </span>
           </div>
           <p className="mt-1 text-sm text-blue-50">
-            Write a high-signal post with format guidance, tags, and publish
-            checks.
+            Write a high-signal post with clear context, useful tags, and
+            publish checks.
           </p>
-        </div>
-        <div className="grid gap-2 border-t border-slate-200 bg-white p-4 sm:grid-cols-4 dark:border-slate-700 dark:bg-slate-900">
-          {formatOptions.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setForm({ ...form, format: option })}
-              className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${
-                form.format === option
-                  ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200"
-                  : "border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
         </div>
       </PanelCard>
 
@@ -234,50 +217,6 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
                     </span>
                   ) : null}
                 </label>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-1">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                      Format *
-                    </span>
-                    <select
-                      value={form.format}
-                      onChange={(event) =>
-                        setForm({
-                          ...form,
-                          format: event.target
-                            .value as CreatePostFormData["format"],
-                        })
-                      }
-                      className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      {formatOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="grid gap-1">
-                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                      Community
-                    </span>
-                    <select
-                      value={form.communityId}
-                      onChange={(event) =>
-                        setForm({ ...form, communityId: event.target.value })
-                      }
-                      className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      {communityOptions.map((option) => (
-                        <option key={option.id || "none"} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
 
                 <label className="grid gap-1">
                   <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
@@ -462,6 +401,9 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                 {form.title || "Untitled post"}
               </h2>
+              <span className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                {form.postType}
+              </span>
               <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
                 {form.body || "No content yet."}
               </p>

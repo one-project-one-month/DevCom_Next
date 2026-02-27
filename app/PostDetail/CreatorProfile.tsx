@@ -1,37 +1,43 @@
-import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
+import { PanelCard } from "@/components/dashboard/shared";
+import { ArrowLeft, UserRound } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import profile from "@/assets/img/default.png";
 
-export default function CreatorProfile() {
+type CreatorProfileProps = {
+  name?: string;
+  handle?: string;
+};
+
+function profileHrefFromHandle(handle: string) {
+  const slug = handle.replace(/^@/, "");
+  if (slug === "hhlaing.swan") {
+    return "/profile";
+  }
+  return `/profile/${slug}`;
+}
+
+export default function CreatorProfile({
+  handle = "@john.doe",
+}: CreatorProfileProps) {
   return (
-    <PanelCard className="overflow-hidden">
-      <div className="h-16 bg-linear-to-r from-blue-500 to-indigo-500 sm:h-20" />
-      <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-        <AvatarCircle className="-mt-7 mb-3 h-14 w-14 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16" />
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-          H.Hlaing Swan
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          @hhlaing.swan
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-3 text-center">
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              128
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Threads
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              884
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Helpful
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition sm:py-2.5 bg-blue-600 text-white hover:bg-blue-700">
-          View Profile
+    <PanelCard className="overflow-hidden rounded-xl ">
+      <div className="px-4 pb-4">
+        <div className="mt-4 flex flex-col gap-2">
+          <Link
+            href={profileHrefFromHandle(handle)}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+          >
+            <UserRound className="h-4 w-4" />
+            View Profile
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Feed
+          </Link>
         </div>
       </div>
     </PanelCard>

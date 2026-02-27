@@ -61,7 +61,7 @@ export default function CommentEditorSection({
 
   return (
     <div>
-      <div className="rounded-lg border bg-white dark:bg-gray-800 overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all focus-within:border-blue-500 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] dark:border-slate-700 dark:bg-slate-900">
         <EditorContent className="tiptap" editor={editor} />
 
         {/* Always render CommentEditor, just hide it when not focused */}
@@ -72,9 +72,9 @@ export default function CommentEditorSection({
 
       {/* Show Post Comment button if editor is not empty */}
       {showButtonState && (
-        <div>
+        <div className="mt-2 flex justify-end">
           <Button
-            className="mt-2 self-end bg-blue-600 hover:bg-blue-700"
+            className="rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600"
             size="sm"
           >
             Post Comment

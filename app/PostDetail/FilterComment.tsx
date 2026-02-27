@@ -19,14 +19,24 @@ export function FilterComment() {
     oldest: false,
   });
 
+  const selected = filter.top
+    ? "Top"
+    : filter.recent
+      ? "Newest"
+      : "Oldest";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          <ChevronsUpDown className="h-4 w-4" />
+        <Button
+          variant="outline"
+          className="h-9 rounded-lg border-slate-300 bg-white/80 px-3 text-xs font-medium hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800/80"
+        >
+          {selected}
+          <ChevronsUpDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-2">
+      <DropdownMenuContent className="w-80 p-2" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-base font-semibold p-2">
             Sort Discussion:

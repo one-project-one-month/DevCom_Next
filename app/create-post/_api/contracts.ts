@@ -1,4 +1,4 @@
-export type PostFormat = "Question" | "Guide" | "RFC" | "Build Log";
+export type PostType = "Post";
 export type PostStatus = "DRAFT" | "PUBLISHED";
 
 export type ApiErrorResponse = {
@@ -35,7 +35,7 @@ export type PostEntity = {
   id: string;
   title: string;
   body: string;
-  format: PostFormat;
+  postType: PostType;
   status: PostStatus;
   visibility: "PUBLIC";
   tags: string[];
@@ -51,7 +51,7 @@ export type PostEntity = {
 export type CreatePostRequest = {
   title: string;
   body: string;
-  format: PostFormat;
+  postType: PostType;
   tags: string[];
   communityId?: string;
   notifyReplies: boolean;

@@ -42,17 +42,8 @@ function profileHrefFromHandle(handle: string) {
   return `/profile/${slug}`;
 }
 
-function formatStyles(format: FeedPost["format"]) {
-  if (format === "Question") {
-    return "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200";
-  }
-  if (format === "Guide") {
-    return "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200";
-  }
-  if (format === "RFC") {
-    return "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200";
-  }
-  return "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200";
+function postTypeStyles() {
+  return "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200";
 }
 
 export function FeedPostCard({
@@ -161,19 +152,19 @@ export function FeedPostCard({
   }
 
   return (
-    <PanelCard className={cn("p-4", className)}>
-      <div className="mb-3 flex items-center justify-between">
+    <PanelCard className={cn("p-6", className)}>
+      <div className="mb-5 flex items-center justify-between">
         {showAuthor ? (
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500" />
             <div>
               <Link
                 href={profileHrefFromHandle(post.handle)}
-                className="text-sm font-semibold text-slate-900 underline-offset-2 hover:underline dark:text-slate-100"
+                className="text-base font-semibold text-slate-900 underline-offset-2 hover:underline dark:text-slate-100"
               >
                 {post.name}
               </Link>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 <Link
                   href={profileHrefFromHandle(post.handle)}
                   className="hover:text-slate-700 dark:hover:text-slate-200"
@@ -185,45 +176,37 @@ export function FeedPostCard({
             </div>
           </div>
         ) : (
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {post.time}
           </p>
         )}
-
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${formatStyles(post.format)}`}
-          >
-            {post.format}
-          </span>
-        </div>
       </div>
 
-      <div className="group">
-        <h3 className="mb-2 hover:text-blue-600 dark:hover:text-blue-400 text-base font-semibold text-slate-900 dark:text-slate-100">
-          {post.title}
-        </h3>
-        <p className="mb-3 hover:text-slate-900 dark:hover:text-slate-100 text-sm leading-6 text-slate-700 dark:text-slate-300">
-          {post.content}
-        </p>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="my-5 flex flex-wrap items-center gap-2.5">
         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300">
           Public
         </span>
         {post.tags.map((tag) => (
           <span
             key={`${post.id}-${tag}`}
-            className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+            className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
           >
             {tag}
           </span>
         ))}
       </div>
 
+      <div className="group">
+        <h3 className="mb-3 text-lg font-semibold text-slate-900 hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-400">
+          {post.title}
+        </h3>
+        <p className="mb-5 text-base leading-7 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100">
+          {post.content}
+        </p>
+      </div>
+
       {post.imageUrl ? (
-        <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
           <Image
             src={post.imageUrl}
             alt={`${post.title} visual`}
@@ -234,30 +217,30 @@ export function FeedPostCard({
         </div>
       ) : null}
 
-      <div className="mb-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
+      <div className="mb-4 flex flex-wrap items-center gap-2.5 border-t border-slate-200 pt-4 dark:border-slate-700">
         <button
           onClick={handleHelpful}
           className={cn(
-            "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm transition",
+            "inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm transition",
             isHelpful
-              ? "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100",
+              ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-500/20 dark:text-blue-200"
+              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100",
           )}
         >
           <BookOpenText className="h-4 w-4" />
           {helpfulCount} helpful
         </button>
-        <button className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100">
+        <button className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100">
           <MessageCircle className="h-4 w-4" />
           {post.replies} replies
         </button>
         <button
           onClick={handleSave}
           className={cn(
-            "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm transition",
+            "inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm transition",
             isSaved
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100",
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-200"
+              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100",
           )}
         >
           <Bookmark className="h-4 w-4" />
@@ -266,31 +249,31 @@ export function FeedPostCard({
         {showOpenThreadAction ? (
           <Link
             href={postHref}
-            className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
             <FileCode2 className="h-4 w-4" />
-            Open thread
+            Open Detail
           </Link>
         ) : null}
       </div>
 
-      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-800">
+      <div className="mb-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-800">
         {post.isOwnPost ? (
           <>
             <Link
               href={`/create-post?edit=${post.id}`}
-              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
             >
               <PencilLine className="h-3.5 w-3.5" />
               Edit
             </Link>
-            <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100">
+            <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100">
               Move to Draft
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-500/10"
+              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-500/10"
             >
               <Trash2 className="h-3.5 w-3.5" />
               {isDeleting ? "Deleting..." : "Delete"}
@@ -300,7 +283,7 @@ export function FeedPostCard({
           <button
             onClick={handleReport}
             disabled={isReporting || isReported}
-            className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
+            className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
           >
             <Flag className="h-3.5 w-3.5" />
             {isReported
@@ -312,7 +295,7 @@ export function FeedPostCard({
         )}
         <button
           onClick={handleCopyLink}
-          className="ml-auto inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+          className="ml-auto inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-slate-600 transition hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
         >
           <Copy className="h-3.5 w-3.5" />
           {copyState === "copied"
@@ -326,7 +309,7 @@ export function FeedPostCard({
       {showCommentBox ? (
         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
           <input
-            className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="flex-1 bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
             placeholder="Add a reproducible answer, code sample, or reference..."
           />
           <button className="rounded-lg p-1.5 text-slate-500 transition hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100">

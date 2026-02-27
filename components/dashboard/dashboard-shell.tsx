@@ -11,15 +11,18 @@ import { cn } from "@/lib/utils";
 type DashboardShellProps = {
   children: ReactNode;
   rightSidebar?: ReactNode;
+  leftSidebar?: ReactNode;
   contentClassName?: string;
 };
 
 export function DashboardShell({
   children,
   rightSidebar,
+  leftSidebar,
   contentClassName,
 }: DashboardShellProps) {
   const hasRightSidebar = Boolean(rightSidebar);
+  const renderedLeftSidebar = leftSidebar ?? <LeftSidebar />;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((prev) => !prev);
 
@@ -40,7 +43,7 @@ export function DashboardShell({
           )}
         >
           <div className="sticky top-0 h-fit self-start max-[980px]:hidden">
-            <LeftSidebar />
+            {renderedLeftSidebar}
           </div>
 
           <div
@@ -94,7 +97,7 @@ export function DashboardShell({
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <LeftSidebar />
+            {renderedLeftSidebar}
           </aside>
         </div>
       </div>

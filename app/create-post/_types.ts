@@ -1,9 +1,9 @@
-export type PostFormat = "Question" | "Guide" | "RFC" | "Build Log";
+export type PostType = "Post";
 export type PostStatus = "Draft" | "Publish";
 
 export type CreatePostFormData = {
   title: string;
-  format: PostFormat;
+  postType: PostType;
   body: string;
   tags: string[];
   communityId: string;

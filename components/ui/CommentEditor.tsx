@@ -7,8 +7,6 @@ import {
   Bold,
   Italic,
   Code,
-  Heading1,
-  Heading2,
   Highlighter,
 } from "lucide-react";
 
@@ -58,38 +56,19 @@ export const CommentEditor = ({ editor }: { editor: Editor}) => {
       </button>
 
       <button
-        onClick={() => editor.chain().focus().setParagraph().run()}
-        className={`${btn} ${editorState.isParagraph ? active : ""}`}
+        onClick={() => editor.chain().focus().toggleCode().run()}
+        disabled={!editorState.canCode}
+        className={`${btn} ${editorState.isCode ? active : ""}`}
       >
-        <span className="text-sm font-semibold">P</span>
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={`${btn} ${editorState.isHeading2 ? active : ""}`}
-      >
-        <Heading1 size={18} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={`${btn} ${editorState.isHeading3 ? active : ""}`}
-      >
-        <Heading2 size={18} />
-      </button>
-
-      <button
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        className={`${btn} ${editorState.isCodeBlock ? active : ""}`}
-      >
-        <Code size={18} />
+        <Code size={16} />
       </button>
 
       <button
         onClick={toggleHighlight}
         className={`${btn} ${editor.isActive("highlight") ? active : ""}`}
+        aria-label="Toggle text color"
       >
-        <Highlighter size={18} />
+        <Highlighter size={16} />
       </button>
     </div>
   );

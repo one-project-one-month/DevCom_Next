@@ -58,7 +58,7 @@ export const suggestions: SuggestedUser[] = [
 export const feedPosts: FeedPost[] = [
   {
     id: "1",
-    format: "Question",
+    postType: "Post",
     name: "Nina Park",
     handle: "@nina.codes",
     time: "1h",
@@ -72,7 +72,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "2",
-    format: "Guide",
+    postType: "Post",
     name: "Ibrahim Noor",
     handle: "@inoor",
     time: "2h",
@@ -86,7 +86,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "3",
-    format: "RFC",
+    postType: "Post",
     name: "Maya Chen",
     handle: "@maya.dev",
     time: "3h",
@@ -100,7 +100,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "4",
-    format: "Build Log",
+    postType: "Post",
     name: "Leo Martinez",
     handle: "@leocodes",
     time: "5h",
@@ -115,7 +115,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "5",
-    format: "Question",
+    postType: "Post",
     name: "Ariana Wells",
     handle: "@ariana.dev",
     time: "7h",
@@ -130,7 +130,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "6",
-    format: "Guide",
+    postType: "Post",
     name: "Kaito Sato",
     handle: "@kaito.builds",
     time: "9h",
@@ -144,7 +144,7 @@ export const feedPosts: FeedPost[] = [
   },
   {
     id: "7",
-    format: "RFC",
+    postType: "Post",
     name: "Dev Weekly",
     handle: "@devweekly",
     time: "11h",
@@ -159,7 +159,7 @@ export const feedPosts: FeedPost[] = [
   {
     id: "8",
     isOwnPost: true,
-    format: "Build Log",
+    postType: "Post",
     name: "H.Hlaing Swan",
     handle: "@hhlaing.swan",
     time: "12h",
