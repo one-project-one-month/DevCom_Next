@@ -10,22 +10,26 @@ function wait(ms: number) {
   });
 }
 
-export async function markHelpfulPost(_postId: string, _nextHelpful: boolean): Promise<PostActionResult> {
+export async function markHelpfulPost(postId: string, nextHelpful: boolean): Promise<PostActionResult> {
+  void postId; void nextHelpful;
   await wait(ACTION_DELAY_MS);
   return { ok: true };
 }
 
-export async function savePost(_postId: string, _nextSaved: boolean): Promise<PostActionResult> {
+export async function savePost(postId: string, nextSaved: boolean): Promise<PostActionResult> {
+  void postId; void nextSaved;
   await wait(ACTION_DELAY_MS);
   return { ok: true };
 }
 
-export async function deletePost(_postId: string): Promise<PostActionResult> {
+export async function deletePost(postId: string): Promise<PostActionResult> {
+  void postId;
   await wait(ACTION_DELAY_MS);
   return { ok: true };
 }
 
-export async function reportPost(_postId: string): Promise<PostActionResult> {
+export async function reportPost(postId: string): Promise<PostActionResult> {
+  void postId;
   await wait(ACTION_DELAY_MS);
   return { ok: true };
 }

@@ -229,7 +229,7 @@ export function ExploreClient({
                 <div className="px-1">
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                         Showing {tab === "posts" ? filteredPosts.length : filteredPeople.length} {tab}
-                        {searchQuery && <span> for <span className="font-semibold text-slate-900 dark:text-slate-100 italic">"{searchQuery}"</span></span>}
+                        {searchQuery && <span> for <span className="font-semibold text-slate-900 dark:text-slate-100 italic">&quot;{searchQuery}&quot;</span></span>}
                     </p>
                 </div>
             )}

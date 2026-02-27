@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ExploreClient, ExploreRightSidebar } from "@/app/explore/explore-client";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
