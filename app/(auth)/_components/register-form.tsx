@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, LoaderCircle, Mail, ShieldCheck, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { SocialAuthButtons } from "@/app/(auth)/_components/social-auth-buttons";
+import { registerWithEmail } from "@/lib/auth/client";
 
 export function RegisterForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,9 +41,16 @@ export function RegisterForm() {
     }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    const result = await registerWithEmail({ name, email, password });
     setLoading(false);
-    setSuccess("Account created (mock). Connect this form to your register API.");
+
+    if (!result.ok) {
+      setError(result.error ?? "Registration failed.");
+      return;
+    }
+
+    setSuccess("Account created successfully.");
+    router.push("/");
   }
 
   return (
