@@ -30,10 +30,16 @@ const data = [
 export default function Reaction() {
   const [liked, setLiked] = useState(false);
   const [likeState, setLikeState] = useState(data[0].count);
+  const [saved, setSaved] = useState(false);
+  const [savedState, setSavedState] = useState(data[2].count);
 
   const toggleLike = () => {
     setLiked(!liked);
     setLikeState(liked ? likeState - 1 : likeState + 1);
+  };
+  const toggleSaved = () => {
+    setSaved(!saved);
+    setSavedState(saved ? savedState - 1 : savedState + 1);
   };
   return (
     <div className="lg:sticky lg:top-10 flex flex-col gap-5 items-end">
@@ -41,7 +47,7 @@ export default function Reaction() {
         <Tooltip key={idx}>
           <TooltipTrigger asChild>
             <div className="mt-12 mr-10 flex flex-col items-center gap-1 hover:text-blue-500 transition-colors">
-              <div>
+              <div className="text-center">
                 <div className="flex items-center gap-1 hover:text-blue-500 transition-colors">
                   {item.icon === "heart" && (
                     <Heart
@@ -54,10 +60,15 @@ export default function Reaction() {
                       <MessageSquare className="h-6 w-6" />
                     </a>
                   )}
-                  {item.icon === "bookmark" && <Bookmark className="h-6 w-6" />}
+                  {item.icon === "bookmark" && (
+                    <Bookmark
+                      className={`h-6 w-6 ${saved ? "fill-yellow-400 text-yellow-400" : ""}`}
+                      onClick={toggleSaved}
+                    />
+                  )}
                 </div>
-                <div className="text-sm mt-3">
-                  {item.title === "Like" ? likeState : item.count}
+                <div className="text-sm mt-3 ">
+                  {item.title === "Like" ? likeState : item.title === "Save" ? savedState : item.count}
                 </div>
               </div>
             </div>
