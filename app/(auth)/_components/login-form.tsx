@@ -11,7 +11,6 @@ export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +32,7 @@ export function LoginForm() {
     }
 
     setLoading(true);
-    const result = await loginWithEmail({ email, password, rememberMe });
+    const result = await loginWithEmail({ email, password });
     setLoading(false);
 
     if (!result.ok) {
@@ -49,7 +48,9 @@ export function LoginForm() {
     <div className="space-y-4">
       <form onSubmit={onSubmit} className="space-y-3">
         <label className="grid gap-1">
-          <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Email</span>
+          <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+            Email
+          </span>
           <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-950">
             <Mail className="h-4 w-4 text-slate-400" />
             <input
@@ -63,7 +64,9 @@ export function LoginForm() {
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Password</span>
+          <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+            Password
+          </span>
           <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-950">
             <KeyRound className="h-4 w-4 text-slate-400" />
             <input
@@ -79,23 +82,32 @@ export function LoginForm() {
               className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
             </button>
           </div>
         </label>
 
-        <div className="flex items-center justify-between">
-          <label className="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-            <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} />
-            Remember me
-          </label>
-          <button type="button" className="text-sm font-medium text-blue-700 hover:underline dark:text-cyan-300">
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            className="text-sm font-medium text-blue-700 hover:underline dark:text-cyan-300"
+          >
             Forgot password?
           </button>
         </div>
 
-        {error ? <p className="text-xs text-red-600 dark:text-red-300">{error}</p> : null}
-        {success ? <p className="text-xs text-emerald-600 dark:text-emerald-300">{success}</p> : null}
+        {error ? (
+          <p className="text-xs text-red-600 dark:text-red-300">{error}</p>
+        ) : null}
+        {success ? (
+          <p className="text-xs text-emerald-600 dark:text-emerald-300">
+            {success}
+          </p>
+        ) : null}
 
         <button
           type="submit"
