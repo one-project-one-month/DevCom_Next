@@ -1,5 +1,10 @@
-import { ExplorePageView } from "@/app/explore/_components/explore-page-view";
+import { Suspense } from "react";
+import { ExplorePageWrapper } from "@/app/explore/explore-page-wrapper";
 
 export default function ExplorePage() {
-  return <ExplorePageView />;
+  return (
+    <Suspense fallback={<div>Loading explore...</div>}>
+      <ExplorePageWrapper />
+    </Suspense>
+  );
 }
