@@ -10,7 +10,6 @@ export function ExplorePageWrapper() {
 
     const searchQuery = searchParams.get("q") || "";
     const activeTag = searchParams.get("tag");
-    const formatFilter = searchParams.get("format");
 
     function updateParams(newParams: Record<string, string | null>) {
         const params = new URLSearchParams(searchParams.toString());
@@ -29,10 +28,6 @@ export function ExplorePageWrapper() {
         updateParams({ tag: activeTag === tag ? null : tag });
     }
 
-    function handleFormatChange(format: string | null) {
-        updateParams({ format: formatFilter === format ? null : format });
-    }
-
     function handleClearAll() {
         router.push("/explore");
     }
@@ -47,8 +42,6 @@ export function ExplorePageWrapper() {
                 activeTag={activeTag}
                 onTagClick={handleTagClick}
                 searchQuery={searchQuery}
-                formatFilter={formatFilter}
-                onFormatChange={handleFormatChange}
                 onClearAll={handleClearAll}
             />
         </DashboardShell>
