@@ -47,7 +47,7 @@ export function TopNavbar({
       />
       <div
         className={cn(
-          "mx-auto w-full max-w-[1460px] transition-all duration-300 ease-out",
+          "mx-auto w-full max-w-365 transition-all duration-300 ease-out",
           isScrolled ? "px-2 pt-2 sm:px-3 sm:pt-2" : "px-0 pt-0",
         )}
       >
