@@ -1,8 +1,6 @@
 import { PanelCard } from "@/components/dashboard/shared";
 import { ArrowLeft, UserRound } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import profile from "@/assets/img/default.png";
 
 type CreatorProfileProps = {
   name?: string;

@@ -1,7 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { ExploreClient, ExploreRightSidebar } from "@/app/explore/explore-client";
+import {
+  ExploreClient,
+  ExploreRightSidebar,
+} from "@/app/explore/_components/explore-client";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export function ExplorePageWrapper() {
@@ -44,7 +47,10 @@ export function ExplorePageWrapper() {
   return (
     <DashboardShell
       rightSidebar={
-        <ExploreRightSidebar activeTag={activeTag} onTagClick={handleTagClick} />
+        <ExploreRightSidebar
+          activeTag={activeTag}
+          onTagClick={handleTagClick}
+        />
       }
     >
       <ExploreClient

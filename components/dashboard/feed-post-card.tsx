@@ -42,10 +42,6 @@ function profileHrefFromHandle(handle: string) {
   return `/profile/${slug}`;
 }
 
-function postTypeStyles() {
-  return "bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200";
-}
-
 export function FeedPostCard({
   post,
   className,

@@ -108,41 +108,41 @@ export function ExploreClient({
     <section className="space-y-5">
       <div className="sticky top-0 z-20 pb-2">
         <PanelCard className="border-slate-200/80 bg-white/85 p-4 backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/80">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
-            <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-            <input
-              value={localQuery}
-              onChange={(event) => setLocalQuery(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  onSearchSubmit?.(localQuery);
-                }
-              }}
-              className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
-              placeholder="Search posts by title, content, tags, or author"
-              aria-label="Search posts"
-            />
-            {localQuery ? (
-              <button
-                onClick={() => {
-                  setLocalQuery("");
-                  onClearSearch?.();
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-55 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
+              <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <input
+                value={localQuery}
+                onChange={(event) => setLocalQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    onSearchSubmit?.(localQuery);
+                  }
                 }}
-                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
-                aria-label="Clear search"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
+                className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                placeholder="Search posts by title, content, tags, or author"
+                aria-label="Search posts"
+              />
+              {localQuery ? (
+                <button
+                  onClick={() => {
+                    setLocalQuery("");
+                    onClearSearch?.();
+                  }}
+                  className="rounded-full p-1 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              ) : null}
+            </div>
+            <button
+              onClick={() => onSearchSubmit?.(localQuery)}
+              className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            >
+              Search
+            </button>
           </div>
-          <button
-            onClick={() => onSearchSubmit?.(localQuery)}
-            className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            Search
-          </button>
-        </div>
         </PanelCard>
       </div>
 
