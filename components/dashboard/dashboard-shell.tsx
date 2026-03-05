@@ -5,6 +5,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 import { LeftSidebar } from "@/components/dashboard/left-sidebar";
+import { RightSidebar } from "@/components/dashboard/right-sidebar";
 import { TopNavbar } from "@/components/dashboard/top-navbar";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,9 @@ export function DashboardShell({
   leftSidebar,
   contentClassName,
 }: DashboardShellProps) {
-  const hasRightSidebar = Boolean(rightSidebar);
+  const renderedRightSidebar =
+    rightSidebar === undefined ? <RightSidebar /> : rightSidebar;
+  const hasRightSidebar = Boolean(renderedRightSidebar);
   const renderedLeftSidebar = leftSidebar ?? <LeftSidebar />;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((prev) => !prev);
@@ -57,7 +60,7 @@ export function DashboardShell({
 
           {hasRightSidebar ? (
             <div className="scrollbar-hidden h-full overflow-y-auto max-[980px]:hidden">
-              {rightSidebar}
+              {renderedRightSidebar}
             </div>
           ) : null}
         </section>
