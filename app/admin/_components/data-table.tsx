@@ -29,6 +29,14 @@ type Props<T> = {
   actions?: Action<T>[]
 }
 
+function getCellContent<T>(row: T, accessor: Column<T>["accessor"]) {
+  if (typeof accessor === "function") {
+    return accessor(row)
+  }
+
+  return row[accessor] as ReactNode
+}
+
 export function DataTable<T extends { id: string }>({
   data,
   columns,
@@ -64,9 +72,7 @@ export function DataTable<T extends { id: string }>({
                 >
                   {columns.map((col, i) => (
                     <td key={i} className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
-                      {typeof col.accessor === "function"
-                        ? col.accessor(row)
-                        : (row as any)[col.accessor]}
+                      {getCellContent(row, col.accessor)}
                     </td>
                   ))}
 

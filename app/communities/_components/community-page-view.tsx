@@ -176,7 +176,7 @@ export function CommunitiesPageView() {
         ) : (
           <PanelCard className="py-16 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              No users found matching "{searchQuery}".
+              No users found matching &quot;{searchQuery}&quot;.
             </p>
           </PanelCard>
         )}
