@@ -460,6 +460,6 @@ export function AdminPageView() {
           </nav>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }
