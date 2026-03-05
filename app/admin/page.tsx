@@ -1,5 +1,5 @@
-import { AdminPageView } from "@/app/admin/_components/admin-page-view";
+import { redirect } from "next/navigation";
 
 export default function AdminPage() {
-  return <AdminPageView />;
+  redirect("/admin/overview");
 }

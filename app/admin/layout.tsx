@@ -1,34 +1,31 @@
-import { redirect } from "next/navigation"
-import { DesktopSidebar } from "./_components/sidebar"
-import AdminHeader from "./_components/header"
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
+import { DesktopSidebar } from "./_components/sidebar";
+import AdminHeader from "./_components/header";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  
-  // Temporary mock admin
-  const currentUser = {
-    name: "Kyaw Hsan",
-    role: "ADMIN", // change to USER to test 403
-  }
+  const cookieStore = await cookies();
 
-  if (currentUser.role !== "ADMIN") {
-    redirect("/admin/not-authorized")
+  // UI-prep guard: uses cookie role until backend auth is integrated.
+  const role = cookieStore.get("admin_role")?.value ?? "ADMIN";
+
+  if (role !== "ADMIN") {
+    redirect("/admin/not-authorized");
   }
 
   return (
     <div className="flex h-screen bg-background">
       <DesktopSidebar />
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <AdminHeader />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
-  )
+  );
 }
