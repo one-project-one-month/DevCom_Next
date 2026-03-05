@@ -1,39 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  Search,
-  MoreHorizontal,
-  ShieldCheck,
-  UserX,
-} from "lucide-react";
+import { useState } from "react";
+import { MoreHorizontal, ShieldCheck, UserX } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { User } from "../_data/admin";
 import { fetchUsers } from "../_data/admin-service";
 
 import { DataTable, Column, Action } from "../_components/data-table";
-import Pagination from "../_components/pagination";
-import { Input } from "@/components/ui/input";
+import ListPageShell from "../_components/list-page-shell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export default function UsersPage() {
-  
-  const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 10;
 
-  const loadUsers = async () => {
-    const res = await fetchUsers(page, limit, search);
-    setUsers(res.data);
-    setTotalPages(res.totalPages);
-  };
+  const { data } = useQuery({
+    queryKey: ["admin-users", page, search],
+    queryFn: () => fetchUsers(page, limit, search),
+  });
 
-  useEffect(() => {
-    loadUsers();
-  }, [page, search]);
+  const users = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   const columns: Column<User>[] = [
     {
@@ -58,9 +48,7 @@ export default function UsersPage() {
     {
       header: "Email",
       accessor: (user) => (
-        <span className="text-slate-600 dark:text-slate-400 text-sm">
-          {user.email}
-        </span>
+        <span className="text-slate-600 dark:text-slate-400 text-sm">{user.email}</span>
       ),
     },
     {
@@ -126,32 +114,19 @@ export default function UsersPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border shadow-sm">
-        <div className="relative w-full md:max-w-half">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-          <Input
-            placeholder="Search by name, handle or email..."
-            className="pl-10 h-10 border-slate-200 focus-visible:ring-primary transition-all"
-            value={search}
-            onChange={(e) => {
-              setPage(1);
-              setSearch(e.target.value);
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 rounded-xl border shadow-sm overflow-hidden">
+    <ListPageShell
+      searchPlaceholder="Search by name, handle or email..."
+      search={search}
+      onSearchChange={(value) => {
+        setPage(1);
+        setSearch(value);
+      }}
+      page={page}
+      totalPages={totalPages}
+      onPageChange={setPage}
+      summaryText={`Showing page ${page} of ${totalPages}`}
+    >
         <DataTable<User> data={users} columns={columns} actions={actions} />
-      </div>
-
-      <div className="flex items-center justify-between px-2">
-        <p className="text-sm text-slate-500 italic">
-          Showing page {page} of {totalPages}
-        </p>
-        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-      </div>
-    </div>
+    </ListPageShell>
   );
 }

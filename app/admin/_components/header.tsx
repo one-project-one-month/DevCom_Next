@@ -2,30 +2,12 @@
 
 import { usePathname } from "next/navigation"
 import { MobileSidebar } from "./sidebar"
-
-const ROUTE_TITLES: Record<string, { title: string; subtitle: string }> = {
-  "/admin": { 
-    title: "Dashboard Overview", 
-    subtitle: "Welcome back, Admin." 
-  },
-  "/admin/users": { 
-    title: "User Management", 
-    subtitle: "Manage community members and permissions." 
-  },
-  "/admin/posts": { 
-    title: "Post Moderation", 
-    subtitle: "Review and manage community content." 
-  },
-  "/admin/reports": { 
-    title: "Report Center", 
-    subtitle: "Handle reported content and violations." 
-  },
-}
+import { ADMIN_ROUTE_TITLES } from "../_config/navigation"
 
 export default function AdminHeader() {
   const pathname = usePathname()
 
-  const currentPage = ROUTE_TITLES[pathname] || {
+  const currentPage = ADMIN_ROUTE_TITLES[pathname] || {
     title: pathname.split("/").pop()?.replace("-", " ") || "Admin",
     subtitle: "Management Area"
   }

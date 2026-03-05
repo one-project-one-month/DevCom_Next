@@ -4,11 +4,6 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Flag,
-  Settings,
   PanelLeftClose,
   PanelLeftOpen,
   Terminal,
@@ -18,14 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
-
-const navItems = [
-  { name: "Overview", href: "/admin", icon: LayoutDashboard },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Posts", href: "/admin/posts", icon: FileText },
-  { name: "Reports", href: "/admin/reports", icon: Flag },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
-]
+import { ADMIN_NAV_ITEMS } from "../_config/navigation"
 
 export function DesktopSidebar() {
   const pathname = usePathname()
@@ -60,7 +48,7 @@ export function DesktopSidebar() {
       </div>
 
       <nav className="flex flex-col gap-1 p-3 mt-4">
-        {navItems.map((item) => {
+        {ADMIN_NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href
 
           return (
@@ -120,7 +108,7 @@ export function MobileSidebar() {
         </div>
 
         <nav className="flex flex-col gap-2 px-4">
-          {navItems.map((item) => {
+          {ADMIN_NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href
 
             return (
