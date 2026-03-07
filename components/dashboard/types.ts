@@ -29,10 +29,10 @@ export type FeedPostTag = {
 };
 
 export type FeedPost = {
-  status?: FeedPostStatus;
+  status?: string;
   id: string;
   isOwnPost?: boolean;
-  postType: FeedPostType;
+  postType: "Post";
   name: string;
   handle: string;
   time: string;
