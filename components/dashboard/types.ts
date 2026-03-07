@@ -19,11 +19,20 @@ export type SuggestedUser = {
   focus: string;
 };
 
+export type FeedPostType = "Question" | "Guide" | "RFC" | "Build Log";
+
+export type FeedPostStatus = "Solved" | "Reviewing";
+
+export type FeedPostTag = {
+  id: string;
+  name: string;
+};
+
 export type FeedPost = {
-  status?: string;
+  status?: FeedPostStatus;
   id: string;
   isOwnPost?: boolean;
-  postType: "Post";
+  postType: FeedPostType;
   name: string;
   handle: string;
   time: string;
