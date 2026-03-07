@@ -9,7 +9,7 @@ import { FilterBlock } from "@/app/saved-posts/_components/filter-block";
 import { FilterFeedPostType, FilterFeedPostSortType, FilterFeedPostStatus, SavedPost } from "@/app/saved-posts/_types";
 import { SavedPostCard } from "@/app/saved-posts/_components/saved-post-card";
 import { SelectBulkSection } from "@/app/saved-posts/_components/select-bulk-section";
-import { useSavedPostsFilters } from "@/app/saved-posts/_hook/use-saved-post-filters";
+import { useSavedPostsFilters, Filters } from "@/app/saved-posts/_hook/use-saved-post-filters";
 import { useBulkSelection } from "@/app/saved-posts/_hook/use-bulk-selection";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -92,19 +92,39 @@ export function SavedPostsPageView() {
   const selection = useBulkSelection<PostId>(postIds);
   const hasSelectedPosts = selection.selectedIds.size > 0;
 
+  const handleQueryChange = (query: string) => {
+    selection.clearAll();
+    setQuery(query);
+  }
+
+  const handleFilterChange = (filters: Partial<Filters>) => {
+    selection.clearAll();
+    setFilters(filters);
+  }
+
+  const handleResetQuery = () => {
+    selection.clearAll();
+    resetQuery();
+  }
+
+  const handleResetFilters = () => {
+    selection.clearAll();
+    resetFilters();
+  }
+
   return (
     <DashboardShell rightSidebar={
       <SavedPostControls
         query={query}
-        setQuery={(query) => setQuery(query)}
+        setQuery={(query) => handleQueryChange(query)}
         type={type}
-        setType={(type) => setFilters({ type: type })}
+        setType={(type) => handleFilterChange({ type: type })}
         status={status}
-        setStatus={(status) => setFilters({ status: status })}
+        setStatus={(status) => handleFilterChange({ status: status })}
         sort={sort}
-        setSort={(sort) => setFilters({ sort: sort })}
-        onClearQuery={resetQuery}
-        onClearFilter={resetFilters}
+        setSort={(sort) => handleFilterChange({ sort: sort })}
+        onClearQuery={handleResetQuery}
+        onClearFilter={handleResetFilters}
         className="space-y-2"
       />
     }>
@@ -112,7 +132,7 @@ export function SavedPostsPageView() {
         <PanelCard className="p-6">
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Saved Posts</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Manage posts you've saved for later.
+            Manage posts you&apos;ve saved for later.
           </p>
         </PanelCard>
         <div className="px-2 min-[981px]:hidden">
@@ -133,15 +153,15 @@ export function SavedPostsPageView() {
               <div className="space-y-3 p-4">
                 <SavedPostControls
                   query={query}
-                  setQuery={(query) => setQuery(query)}
+                  setQuery={(query) => handleQueryChange(query)}
                   type={type}
-                  setType={(type) => setFilters({ type: type })}
+                  setType={(type) => handleFilterChange({ type: type })}
                   status={status}
-                  setStatus={(status) => setFilters({ status: status })}
+                  setStatus={(status) => handleFilterChange({ status: status })}
                   sort={sort}
-                  setSort={(sort) => setFilters({ sort: sort })}
-                  onClearQuery={resetQuery}
-                  onClearFilter={resetFilters}
+                  setSort={(sort) => handleFilterChange({ sort: sort })}
+                  onClearQuery={handleResetQuery}
+                  onClearFilter={handleResetFilters}
                   className="space-y-3"
                 />
               </div>

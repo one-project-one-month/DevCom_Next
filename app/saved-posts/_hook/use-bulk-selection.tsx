@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export function useBulkSelection<TId extends string>(postIds: TId[]) {
   const [selectedIds, setSelectedIds] = useState<Set<TId>>(() => new Set());
-
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [postIds]);
 
   const { isAllSelected, isSomeSelected, selectedCount } =
     useMemo(() => {

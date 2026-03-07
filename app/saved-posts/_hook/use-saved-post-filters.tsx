@@ -8,7 +8,7 @@ import {
   FilterFeedPostType,
 } from "@/app/saved-posts/_types";
 
-type Filters = {
+export type Filters = {
   type: FilterFeedPostType;
   status: FilterFeedPostStatus;
   sort: FilterFeedPostSortType;
