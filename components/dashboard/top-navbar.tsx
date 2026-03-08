@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Home, LayoutGrid, Menu, Sparkles, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { type FormEvent, useEffect, useState } from "react";
+import { Home, LayoutGrid, Menu, Search, Sparkles, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -18,7 +18,9 @@ export function TopNavbar({
   isSidebarOpen = false,
 }: TopNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => {
@@ -29,6 +31,29 @@ export function TopNavbar({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (pathname !== "/explore") {
+      // setSearchQuery("");
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    // setSearchQuery(params.get("q") ?? "");
+  }, [pathname]);
+
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const normalized = searchQuery.trim().toLowerCase();
+    if (!normalized) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set("q", normalized);
+    router.push(`/explore?${params.toString()}`);
+  }
 
   return (
     <div
@@ -47,13 +72,13 @@ export function TopNavbar({
       />
       <div
         className={cn(
-          "mx-auto w-full max-w-365 transition-all duration-300 ease-out",
-          isScrolled ? "px-2 pt-2 sm:px-3 sm:pt-2" : "px-0 pt-0",
+          "mx-auto w-full max-w-[1460px] px-3 sm:px-4 transition-all duration-300 ease-out",
+          isScrolled ? "pt-2 sm:pt-2" : "pt-0",
         )}
       >
         <PanelCard
           className={cn(
-            "flex flex-wrap items-center justify-between gap-2.5 px-3 lg:px-10 py-2.5 transition-all duration-300 ease-out sm:px-4 sm:py-2.5 lg:gap-4",
+            "flex flex-wrap items-center justify-between gap-2.5 px-3 py-2.5 transition-all duration-300 ease-out sm:px-4 sm:py-2.5 lg:gap-4",
             isScrolled
               ? "rounded-2xl border-slate-200/70 bg-white/70 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-2xl dark:border-slate-700/70 dark:bg-slate-900/65"
               : "rounded-none border-x-0 border-t-0 border-b border-slate-200/80 bg-white/95 shadow-none dark:border-slate-800/80 dark:bg-slate-950/95",
@@ -100,6 +125,26 @@ export function TopNavbar({
               DevLoop
             </p>
           </div>
+
+          <form
+            onSubmit={handleSearchSubmit}
+            className="order-3 w-full md:order-2 md:mx-auto md:max-w-xl"
+          >
+            <label
+              htmlFor="global-search"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800"
+            >
+              <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <input
+                id="global-search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search posts, tags, or people"
+                className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                aria-label="Global search"
+              />
+            </label>
+          </form>
 
           <nav className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:order-3 lg:ml-0">
             <IconButton

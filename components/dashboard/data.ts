@@ -1,4 +1,4 @@
-import { Compass, Home, ListChecks, Settings, Users } from "lucide-react";
+import { Home, Settings, Users } from "lucide-react";
 
 import type {
   ActivityItem,
@@ -8,9 +8,7 @@ import type {
 } from "@/components/dashboard/types";
 
 export const shortcuts: ShortcutItem[] = [
-  { label: "Explore", icon: Compass, href: "/explore" },
   { label: "Communities", icon: Users, href: "/communities" },
-  { label: "Saved Posts", icon: ListChecks, href: "/saved-posts" },
   { label: "Settings", icon: Settings, href: "/settings" },
 ];
 

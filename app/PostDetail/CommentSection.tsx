@@ -7,16 +7,8 @@ import CommentEditorSection from "./CommentEditorSection";
 import Image from "next/image";
 import { commentMockData } from "./comment-mock-data";
 
-function getTotalRepliesCount() {
-  return commentMockData.reduce(
-    (total, item) => total + (item.replies?.length ?? 0),
-    0,
-  );
-}
-
 export default function CommentSection() {
-  const totalReplies = getTotalRepliesCount();
-  const totalComments = commentMockData.length + totalReplies;
+  const totalComments = commentMockData.length;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:p-5">

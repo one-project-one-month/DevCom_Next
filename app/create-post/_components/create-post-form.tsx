@@ -190,7 +190,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
         </div>
       </PanelCard>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="space-y-4">
         <PanelCard className="p-5">
           <div className="grid gap-5">
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
@@ -319,7 +319,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
           </div>
         </PanelCard>
 
-        <div className="space-y-4 xl:sticky xl:top-4">
+        <div className="space-y-4">
           <PanelCard className="p-4">
             <p className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
               <Target className="h-4 w-4" />

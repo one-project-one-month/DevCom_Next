@@ -7,7 +7,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export function ProfileLayoutView({ data }: { data: ProfilePageData }) {
   return (
-    <DashboardShell>
+    <DashboardShell narrowContent>
       <div className="space-y-5 pb-8">
         <ProfileHeaderCard profile={data.profile} />
         <ProfileStatsCard profile={data.profile} />

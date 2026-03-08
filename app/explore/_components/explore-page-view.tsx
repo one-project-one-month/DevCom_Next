@@ -1,21 +1,25 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   ExploreClient,
   ExploreRightSidebar,
 } from "@/app/explore/_components/explore-client";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
-export function ExplorePageWrapper() {
-  const searchParams = useSearchParams();
+type ExplorePageViewProps = {
+  searchQuery: string;
+  activeTag: string | null;
+};
+
+export function ExplorePageView({
+  searchQuery,
+  activeTag,
+}: ExplorePageViewProps) {
   const router = useRouter();
 
-  const searchQuery = searchParams.get("q") || "";
-  const activeTag = searchParams.get("tag");
-
   function updateParams(newParams: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     Object.entries(newParams).forEach(([key, value]) => {
       if (value === null) {
         params.delete(key);
@@ -29,15 +33,6 @@ export function ExplorePageWrapper() {
 
   function handleTagClick(tag: string) {
     updateParams({ tag: activeTag === tag ? null : tag });
-  }
-
-  function handleSearchSubmit(query: string) {
-    const normalized = query.trim().toLowerCase();
-    updateParams({ q: normalized.length > 0 ? normalized : null });
-  }
-
-  function handleClearSearch() {
-    updateParams({ q: null });
   }
 
   function handleClearAll() {
@@ -57,8 +52,6 @@ export function ExplorePageWrapper() {
         activeTag={activeTag}
         onTagClick={handleTagClick}
         searchQuery={searchQuery}
-        onSearchSubmit={handleSearchSubmit}
-        onClearSearch={handleClearSearch}
         onClearAll={handleClearAll}
       />
     </DashboardShell>

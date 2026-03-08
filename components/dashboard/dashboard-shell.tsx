@@ -14,6 +14,7 @@ type DashboardShellProps = {
   rightSidebar?: ReactNode;
   leftSidebar?: ReactNode;
   contentClassName?: string;
+  narrowContent?: boolean;
 };
 
 export function DashboardShell({
@@ -21,10 +22,11 @@ export function DashboardShell({
   rightSidebar,
   leftSidebar,
   contentClassName,
+  narrowContent = true,
 }: DashboardShellProps) {
   const renderedRightSidebar =
     rightSidebar === undefined ? <RightSidebar /> : rightSidebar;
-  const hasRightSidebar = Boolean(renderedRightSidebar);
+  const hasRightSidebar = false;
   const renderedLeftSidebar = leftSidebar ?? <LeftSidebar />;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((prev) => !prev);
@@ -42,7 +44,9 @@ export function DashboardShell({
             "mx-auto grid h-[calc(100vh-80px)] w-full max-w-[1460px] gap-3 px-3 sm:gap-4 sm:px-4 max-[980px]:h-auto max-[980px]:grid-cols-1",
             hasRightSidebar
               ? "justify-center grid-cols-[250px_minmax(0,1fr)_270px] xl:grid-cols-[270px_minmax(0,780px)_290px]"
-              : "justify-center grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1082px)]",
+              : narrowContent
+                ? "justify-center grid-cols-[250px_minmax(0,780px)] xl:grid-cols-[270px_minmax(0,780px)]"
+                : "justify-center grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1082px)]",
           )}
         >
           <div className="sticky top-0 h-fit self-start max-[980px]:hidden">
