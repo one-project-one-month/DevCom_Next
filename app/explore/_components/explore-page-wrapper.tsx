@@ -6,6 +6,7 @@ import {
   ExploreRightSidebar,
 } from "@/app/explore/_components/explore-client";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { Suspense } from "react";
 
 export function ExplorePageWrapper() {
   const searchParams = useSearchParams();
@@ -53,14 +54,16 @@ export function ExplorePageWrapper() {
         />
       }
     >
-      <ExploreClient
-        activeTag={activeTag}
-        onTagClick={handleTagClick}
-        searchQuery={searchQuery}
-        onSearchSubmit={handleSearchSubmit}
-        onClearSearch={handleClearSearch}
-        onClearAll={handleClearAll}
-      />
+      <Suspense fallback={null}>
+        <ExploreClient
+          activeTag={activeTag}
+          onTagClick={handleTagClick}
+          searchQuery={searchQuery}
+          onSearchSubmit={handleSearchSubmit}
+          onClearSearch={handleClearSearch}
+          onClearAll={handleClearAll}
+        />
+      </Suspense>
     </DashboardShell>
   );
 }
