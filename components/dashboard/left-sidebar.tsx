@@ -7,25 +7,51 @@ import { ArrowLeft, UserRoundSearch } from "lucide-react";
 import { shortcuts } from "@/components/dashboard/data";
 import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/auth-store";
+import type { AuthUser } from "@/lib/auth/types";
 
 function isRouteActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function ProfileCard({ pathname }: { pathname: string }) {
+function ProfileCard({
+  pathname,
+  user,
+  isLoading,
+}: {
+  pathname: string;
+  user: AuthUser | null;
+  isLoading: boolean;
+}) {
   const isActive = isRouteActive(pathname, "/profile");
+  const displayName = user?.name ?? "Anonymous User";
+  const profileBgColor = user?.profileBgColor;
 
   return (
     <PanelCard className="overflow-hidden">
-      <div className="h-16 bg-linear-to-r from-blue-500 to-indigo-500 sm:h-20" />
+      <div
+        className="h-16 sm:h-20"
+        style={{
+          background: profileBgColor ?? "linear-gradient(90deg,#3b82f6,#6366f1)",
+        }}
+      />
       <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-        <AvatarCircle className="-mt-7 mb-3 h-14 w-14 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16" />
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-          H.Hlaing Swan
-        </h2>
-        <p className="text-base text-slate-500 dark:text-slate-400">
-          @hhlaing.swan
-        </p>
+        <AvatarCircle
+          className="-mt-7 mb-3 h-14 w-14 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16"
+          imageUrl={user?.avatarUrl}
+          name={displayName}
+        />
+        {isLoading ? (
+          <div className="space-y-2">
+            <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-3 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
+        ) : (
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {displayName}
+          </h2>
+        )}
+
         <div className="mt-4 grid grid-cols-2 gap-3 text-center">
           <div>
             <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
@@ -126,6 +152,8 @@ function ShortcutsCard({ pathname }: { pathname: string }) {
 
 export function LeftSidebar() {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
+  const isLoadingUser = user === null;
   const isPublicProfileRoute =
     pathname.startsWith("/profile/") && pathname !== "/profile";
 
@@ -134,7 +162,7 @@ export function LeftSidebar() {
       {isPublicProfileRoute ? (
         <PublicProfileContextCard pathname={pathname} />
       ) : (
-        <ProfileCard pathname={pathname} />
+        <ProfileCard pathname={pathname} user={user} isLoading={isLoadingUser} />
       )}
       <ShortcutsCard pathname={pathname} />
     </aside>

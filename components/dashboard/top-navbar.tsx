@@ -1,11 +1,12 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
-import { Home, LayoutGrid, Menu, Search, Sparkles, X } from "lucide-react";
+import { Home, LayoutGrid, LogOut, Menu, Search, Sparkles, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { logout } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
 type TopNavbarProps = {
@@ -19,6 +20,7 @@ export function TopNavbar({
 }: TopNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -53,6 +55,17 @@ export function TopNavbar({
     const params = new URLSearchParams();
     params.set("q", normalized);
     router.push(`/explore?${params.toString()}`);
+  }
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      router.replace("/login");
+      setIsLoggingOut(false);
+    }
   }
 
   return (
@@ -158,6 +171,13 @@ export function TopNavbar({
               aria-label="Go to feed"
             >
               <Home className="h-4 w-4" />
+            </IconButton>
+            <IconButton
+              onClick={handleLogout}
+              aria-label="Log out"
+              disabled={isLoggingOut}
+            >
+              <LogOut className="h-4 w-4" />
             </IconButton>
 
             <AnimatedThemeToggler className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100" />

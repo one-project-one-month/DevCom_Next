@@ -8,6 +8,8 @@ type PanelCardProps = {
 
 type AvatarCircleProps = {
   className?: string;
+  imageUrl?: string;
+  name?: string;
 };
 
 type IconButtonProps = {
@@ -22,11 +24,25 @@ export function PanelCard({ children, className = "" }: PanelCardProps) {
   return <div className={`${panelCardBase} ${className}`}>{children}</div>;
 }
 
-export function AvatarCircle({ className = "" }: AvatarCircleProps) {
+export function AvatarCircle({ className = "", imageUrl, name }: AvatarCircleProps) {
+  const initial = name?.trim()?.charAt(0)?.toUpperCase();
   return (
     <div
-      className={`rounded-full bg-linear-to-br from-slate-700 to-slate-900 ${className}`}
-    />
+      className={`relative overflow-hidden rounded-full bg-linear-to-br from-slate-700 to-slate-900 ${className}`}
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt={name ? `${name} avatar` : "User avatar"}
+          className="h-full w-full object-cover"
+        />
+      ) : initial ? (
+        <span className="flex h-full w-full items-center justify-center text-base font-semibold text-white">
+          {initial}
+        </span>
+      ) : null}
+    </div>
   );
 }
 

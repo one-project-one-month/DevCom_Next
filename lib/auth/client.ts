@@ -1,82 +1,21 @@
 "use client";
 
+import { api } from "@/lib/api/fetcher";
 import type {
-  AuthResult,
-  ManualAuthResponse,
-  ManualLoginInput,
-  ManualRegisterInput,
+  MeResponse,
+  OAuthLoginUrlResponse,
   OAuthProvider,
 } from "@/lib/auth/types";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "") ?? "";
-
-async function parseJsonSafe(response: Response) {
-  try {
-    return await response.json();
-  } catch {
-    return null;
-  }
+export function getOAuthLoginUrl(provider: OAuthProvider): Promise<OAuthLoginUrlResponse> {
+  return api.get<OAuthLoginUrlResponse>(`/api/auth/${provider}/login`);
 }
 
-function backendEndpoint(path: string) {
-  if (!BACKEND_URL) {
-    return null;
-  }
-  return `${BACKEND_URL}${path}`;
+export async function startOAuthLogin(provider: OAuthProvider): Promise<void> {
+  const { url } = await getOAuthLoginUrl(provider);
+  window.location.assign(url);
 }
 
-export async function loginWithEmail(
-  payload: ManualLoginInput,
-): Promise<AuthResult<ManualAuthResponse>> {
-  const endpoint = backendEndpoint("/auth/login");
-  if (!endpoint) {
-    return { ok: false, error: "NEXT_PUBLIC_BACKEND_URL is not set." };
-  }
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const body = await parseJsonSafe(response);
-  if (!response.ok) {
-    return { ok: false, error: body?.error ?? "Login failed." };
-  }
-
-  return { ok: true, data: body };
-}
-
-export async function registerWithEmail(
-  payload: ManualRegisterInput,
-): Promise<AuthResult<ManualAuthResponse>> {
-  const endpoint = backendEndpoint("/auth/register");
-  if (!endpoint) {
-    return { ok: false, error: "NEXT_PUBLIC_BACKEND_URL is not set." };
-  }
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const body = await parseJsonSafe(response);
-  if (!response.ok) {
-    return { ok: false, error: body?.error ?? "Registration failed." };
-  }
-
-  return { ok: true, data: body };
-}
-
-export function startOAuthLogin(provider: OAuthProvider, callbackUrl = "/"): AuthResult<null> {
-  const endpoint = backendEndpoint(`/auth/oauth/${provider}`);
-  if (!endpoint) {
-    return { ok: false, error: "NEXT_PUBLIC_BACKEND_URL is not set." };
-  }
-
-  const url = new URL(endpoint);
-  url.searchParams.set("callbackUrl", callbackUrl);
-  window.location.assign(url.toString());
-  return { ok: true };
+export function getAuthMe(): Promise<MeResponse> {
+  return api.get<MeResponse>("/api/auth/me");
 }

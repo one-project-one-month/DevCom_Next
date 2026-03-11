@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 import type { ApiErrorPayload, ApiRequestOptions } from "@/types/api";
+import { useAuthStore } from "@/store/auth-store";
 
 export class ApiError extends Error {
   status: number;
@@ -15,7 +16,12 @@ export class ApiError extends Error {
 }
 
 function resolveUrl(path: string, baseUrl?: string) {
-  const base = baseUrl ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+  const base =
+    baseUrl ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    process.env.NEXT_PUBLIC_BACKEND_URL ??
+    "";
+
   if (!base) return path;
   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
@@ -26,16 +32,22 @@ export async function apiFetch<TResponse>(
   baseUrl?: string,
 ): Promise<TResponse> {
   const { method = "GET", headers, body, signal, params, timeout } = options;
+  const token = useAuthStore.getState().token;
+  const mergedHeaders =
+    token && !headers?.Authorization
+      ? { ...headers, Authorization: `Bearer ${token}` }
+      : headers;
 
   try {
     const response = await axios.request<TResponse>({
       url: resolveUrl(path, baseUrl),
       method,
-      headers,
+      headers: mergedHeaders,
       data: body,
       signal,
       params,
       timeout,
+      withCredentials: true,
     });
 
     return response.data;
