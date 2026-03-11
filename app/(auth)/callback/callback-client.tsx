@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 import { AuthLayout } from "@/app/(auth)/_components/auth-layout";
 import { apiFetch } from "@/lib/api/fetcher";
@@ -12,28 +13,22 @@ import { useAuthStore } from "@/store/auth-store";
 export function OAuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const oauthError = searchParams.get("error");
+
+  const authQuery = useQuery({
+    queryKey: ["auth", "oauth-callback"],
+    queryFn: () => apiFetch<MeResponse>("/api/auth/me"),
+    enabled: !oauthError,
+    retry: false,
+  });
 
   useEffect(() => {
-    const oauthError = searchParams.get("error");
-    if (oauthError) {
-      setError("Social login was canceled or failed.");
-      return;
+    if (authQuery.data?.user) {
+      useAuthStore.getState().setUser(authQuery.data.user);
+      console.log("OAuth user:", authQuery.data.user);
+      router.replace("/");
     }
-
-    async function finalizeAuth(): Promise<void> {
-      try {
-        const me = await apiFetch<MeResponse>("/api/auth/me");
-        useAuthStore.getState().setUser(me.user);
-        console.log("OAuth user:", me.user);
-        router.replace("/");
-      } catch {
-        setError("Could not complete social login.");
-      }
-    }
-
-    void finalizeAuth();
-  }, [router, searchParams]);
+  }, [authQuery.data?.user, router]);
 
   return (
     <AuthLayout
@@ -44,8 +39,14 @@ export function OAuthCallbackClient() {
       footerHref="/login"
     >
       <div className="flex flex-col items-center justify-center gap-3 py-6">
-        {error ? (
-          <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
+        {oauthError ? (
+          <p className="text-sm text-red-600 dark:text-red-300">
+            Social login was canceled or failed.
+          </p>
+        ) : authQuery.isError ? (
+          <p className="text-sm text-red-600 dark:text-red-300">
+            Could not complete social login.
+          </p>
         ) : (
           <>
             <LoaderCircle className="h-5 w-5 animate-spin text-cyan-500" />

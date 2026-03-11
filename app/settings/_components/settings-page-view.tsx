@@ -1,9 +1,9 @@
 "use client";
 
-import { type ChangeEvent, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Camera } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { profilePageMock } from "@/app/profile/_data/profile.mock";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { PanelCard } from "@/components/dashboard/shared";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useMeQuery } from "@/hooks/use-auth";
+import { apiFetch } from "@/lib/api/fetcher";
+import { useAuthStore } from "@/store/auth-store";
 
 type EditableProfile = {
   name: string;
@@ -19,25 +23,84 @@ type EditableProfile = {
   location: string;
   bio: string;
   expertise: string;
-  avatar: string;
+  avatarUrl: string;
 };
 
-const initialProfile: EditableProfile = {
-  name: profilePageMock.profile.name,
-  handle: profilePageMock.profile.handle,
-  role: profilePageMock.profile.role,
-  location: profilePageMock.profile.location,
-  bio: profilePageMock.profile.bio,
-  expertise: profilePageMock.profile.expertise.join(", "),
-  avatar: "/window.svg",
+type UserResponse = {
+  user: {
+    id: string;
+    name: string;
+    handle: string;
+    email: string;
+    avatarUrl?: string;
+    role?: string;
+    location?: string;
+    bio?: string;
+    expertise?: string[];
+    profileBgColor?: string;
+  };
 };
+
+const emptyProfile: EditableProfile = {
+  name: "",
+  handle: "",
+  role: "",
+  location: "",
+  bio: "",
+  expertise: "",
+  avatarUrl: "",
+};
+
+function formatHandle(handle?: string) {
+  if (!handle) return "";
+  return handle.startsWith("@") ? handle : `@${handle}`;
+}
+
+function parseExpertise(input: string) {
+  return input
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function mapToEditableProfile(user: UserResponse["user"]): EditableProfile {
+  return {
+    name: user.name ?? "",
+    handle: formatHandle(user.handle),
+    role: user.role ?? "Member",
+    location: user.location ?? "",
+    bio: user.bio ?? "",
+    expertise: user.expertise?.join(", ") ?? "",
+    avatarUrl: user.avatarUrl ?? "",
+  };
+}
 
 export function SettingsPageView() {
-  const [profile, setProfile] = useState<EditableProfile>(initialProfile);
+  const { toast } = useToast();
+  const { data: meData } = useMeQuery();
+  const userId = meData?.user?.id;
+
+  const userQuery = useQuery<UserResponse>({
+    queryKey: ["settings", "me", userId],
+    queryFn: () => apiFetch<UserResponse>(`/api/users/${userId}`),
+    enabled: Boolean(userId),
+    retry: false,
+  });
+
+  const [profile, setProfile] = useState<EditableProfile>(emptyProfile);
+  const [originalProfile, setOriginalProfile] = useState<EditableProfile>(emptyProfile);
+
+  useEffect(() => {
+    if (userQuery.data?.user) {
+      const mapped = mapToEditableProfile(userQuery.data.user);
+      setProfile(mapped);
+      setOriginalProfile(mapped);
+    }
+  }, [userQuery.data?.user]);
 
   const hasChanges = useMemo(
-    () => JSON.stringify(profile) !== JSON.stringify(initialProfile),
-    [profile],
+    () => JSON.stringify(profile) !== JSON.stringify(originalProfile),
+    [profile, originalProfile],
   );
 
   function updateField<Key extends keyof EditableProfile>(key: Key, value: EditableProfile[Key]) {
@@ -45,7 +108,7 @@ export function SettingsPageView() {
   }
 
   function handleReset() {
-    setProfile(initialProfile);
+    setProfile(originalProfile);
   }
 
   function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
@@ -55,8 +118,53 @@ export function SettingsPageView() {
     }
 
     const localImageUrl = URL.createObjectURL(file);
-    updateField("avatar", localImageUrl);
+    updateField("avatarUrl", localImageUrl);
   }
+
+  const updateMutation = useMutation<UserResponse, Error, EditableProfile>({
+    mutationFn: async (payload) => {
+      const body = {
+        name: payload.name,
+        handle: payload.handle,
+        role: payload.role,
+        location: payload.location,
+        bio: payload.bio,
+        expertise: parseExpertise(payload.expertise),
+        avatarUrl: payload.avatarUrl,
+      };
+      return apiFetch<UserResponse>("/api/users/me", {
+        method: "PATCH",
+        body,
+      });
+    },
+    onSuccess: (data) => {
+      const mapped = mapToEditableProfile(data.user);
+      setProfile(mapped);
+      setOriginalProfile(mapped);
+      useAuthStore.getState().setUser({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        avatarUrl: data.user.avatarUrl,
+        profileBgColor: data.user.profileBgColor,
+        provider: useAuthStore.getState().user?.provider ?? "google",
+      });
+      toast({
+        title: "Profile updated",
+        description: "Your changes are live.",
+        variant: "success",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: error.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const isLoading = userQuery.isLoading || !userId;
 
   return (
     <DashboardShell>
@@ -81,7 +189,7 @@ export function SettingsPageView() {
               <div className="flex justify-center">
                 <label htmlFor="settings-avatar-upload" className="group relative cursor-pointer">
                   <Avatar size="lg" className="size-24 ring-4 ring-white transition group-hover:opacity-90 dark:ring-slate-800">
-                    <AvatarImage src={profile.avatar} alt={profile.name} />
+                    <AvatarImage src={profile.avatarUrl} alt={profile.name} />
                     <AvatarFallback>{profile.name.charAt(0) || "U"}</AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
@@ -96,6 +204,9 @@ export function SettingsPageView() {
                   onChange={handleAvatarChange}
                 />
               </div>
+              <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
+                Avatar upload is preview-only for now. Use an image URL below to save.
+              </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -106,6 +217,7 @@ export function SettingsPageView() {
                   value={profile.name}
                   onChange={(event) => updateField("name", event.target.value)}
                   placeholder="Your display name"
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -115,6 +227,7 @@ export function SettingsPageView() {
                   value={profile.handle}
                   onChange={(event) => updateField("handle", event.target.value)}
                   placeholder="@your.handle"
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -124,6 +237,7 @@ export function SettingsPageView() {
                   value={profile.role}
                   onChange={(event) => updateField("role", event.target.value)}
                   placeholder="Frontend Engineer"
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -133,6 +247,7 @@ export function SettingsPageView() {
                   value={profile.location}
                   onChange={(event) => updateField("location", event.target.value)}
                   placeholder="City, Country"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -144,6 +259,7 @@ export function SettingsPageView() {
                   onChange={(event) => updateField("bio", event.target.value)}
                   placeholder="Write a short bio"
                   className="min-h-24"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -154,12 +270,29 @@ export function SettingsPageView() {
                   value={profile.expertise}
                   onChange={(event) => updateField("expertise", event.target.value)}
                   placeholder="React, Next.js, TypeScript"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="settings-avatar-url">Avatar URL</Label>
+                <Input
+                  id="settings-avatar-url"
+                  value={profile.avatarUrl}
+                  onChange={(event) => updateField("avatarUrl", event.target.value)}
+                  placeholder="https://..."
+                  disabled={isLoading}
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <Button disabled={!hasChanges}>Save Changes</Button>
+              <Button
+                disabled={!hasChanges || updateMutation.isPending}
+                onClick={() => updateMutation.mutate(profile)}
+              >
+                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              </Button>
               <Button type="button" variant="outline" onClick={handleReset} disabled={!hasChanges}>
                 Reset
               </Button>

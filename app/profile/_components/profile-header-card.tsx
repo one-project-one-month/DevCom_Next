@@ -4,6 +4,12 @@ import { ArrowUpRight, MapPin } from "lucide-react";
 
 import type { ProfileOverview } from "@/app/profile/_types";
 import { PanelCard } from "@/components/dashboard/shared";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 function initialsFromName(name: string) {
   return name
@@ -15,25 +21,60 @@ function initialsFromName(name: string) {
 }
 
 export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
+  const initials = initialsFromName(profile.name || "User");
+  const avatarLabel = `${profile.name} avatar`;
+
   return (
     <PanelCard className="overflow-hidden">
-      <div className="h-28 bg-linear-to-r from-blue-500 to-cyan-500" />
+      <div
+        className="h-28"
+        style={{
+          background:
+            profile.profileBgColor ?? "linear-gradient(90deg,#3b82f6,#6366f1)",
+        }}
+      />
       <div className="px-5 pb-5">
         <div className="-mt-12 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            {profile.avatarUrl ? (
-              <Image
-                src={profile.avatarUrl}
-                alt={`${profile.name} avatar`}
-                width={80}
-                height={80}
-                className="h-20 w-20 rounded-full border-4 border-white object-cover dark:border-slate-900"
-              />
-            ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-slate-900 text-xl font-bold text-white dark:border-slate-900">
-                {initialsFromName(profile.name)}
-              </div>
-            )}
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="group rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  aria-label="View profile avatar"
+                >
+                  {profile.avatarUrl ? (
+                    <Image
+                      src={profile.avatarUrl}
+                      alt={avatarLabel}
+                      width={80}
+                      height={80}
+                      className="h-20 w-20 rounded-full border-4 border-white object-cover transition group-hover:opacity-90 dark:border-slate-900"
+                    />
+                  ) : (
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-slate-900 text-xl font-bold text-white transition group-hover:opacity-90 dark:border-slate-900">
+                      {initials}
+                    </div>
+                  )}
+                </button>
+              </DialogTrigger>
+              <DialogContent className="bg-transparent p-0 shadow-none">
+                <DialogTitle className="sr-only">Profile photo</DialogTitle>
+                {profile.avatarUrl ? (
+                  <Image
+                    src={profile.avatarUrl}
+                    alt={avatarLabel}
+                    width={500}
+                    height={500}
+                    className="h-[500px] w-full rounded-2xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-[360px] w-[360px] items-center justify-center rounded-2xl bg-slate-800 text-5xl font-bold text-white">
+                    {initials}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
 
             <div className="pt-6">
               <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
