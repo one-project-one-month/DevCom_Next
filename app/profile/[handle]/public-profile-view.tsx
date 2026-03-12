@@ -88,10 +88,10 @@ function formatRelativeTime(iso: string) {
   return `${months}mo`;
 }
 
-function mapToFeedPost(post: FeedApiPost): FeedPost {
+function mapToFeedPost(post: FeedApiPost, isOwnProfile: boolean): FeedPost {
   return {
     id: post.id,
-    isOwnPost: true,
+    isOwnPost: isOwnProfile,
     postType: "Post",
     name: post.author.name,
     handle: post.author.handle.startsWith("@") ? post.author.handle : `@${post.author.handle}`,
@@ -108,28 +108,30 @@ function mapToFeedPost(post: FeedApiPost): FeedPost {
   };
 }
 
-export function ProfilePageView() {
+export function PublicProfileView({ handle }: { handle?: string }) {
   const { data: meData, isLoading: isLoadingMe } = useMeQuery();
-  const userId = meData?.user?.id;
+  const normalizedHandle = (handle ?? "").replace(/^@/, "").toLowerCase();
+  const isOwnProfile =
+    meData?.user?.handle?.replace(/^@/, "").toLowerCase() === normalizedHandle;
 
   const userQuery = useQuery<UserResponse>({
-    queryKey: ["profile", "me", userId],
-    queryFn: () => apiFetch<UserResponse>(`/api/users/${userId}`),
-    enabled: Boolean(userId),
+    queryKey: ["profile", "handle", normalizedHandle],
+    queryFn: () => apiFetch<UserResponse>(`/api/users/${normalizedHandle}`),
+    enabled: Boolean(normalizedHandle),
     retry: false,
   });
 
   const postsQuery = useInfiniteQuery<FeedResponse>({
-    queryKey: ["profile", "posts", userId],
+    queryKey: ["profile", "posts", normalizedHandle],
     queryFn: ({ pageParam }) =>
       apiFetch<FeedResponse>("/api/posts", {
         params: {
           limit: 6,
           cursor: pageParam ?? undefined,
-          author: "me",
+          author: isOwnProfile ? "me" : userQuery.data?.user?.id,
         },
       }),
-    enabled: Boolean(userId),
+    enabled: Boolean(userQuery.data?.user?.id),
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
     initialPageParam: undefined,
   });
@@ -138,38 +140,19 @@ export function ProfilePageView() {
     if (userQuery.data?.user) {
       const posts = postsQuery.data?.pages.flatMap((page) => page.posts) ?? [];
       return {
-        profile: buildProfileOverview(userQuery.data.user, true),
-        posts: posts.map(mapToFeedPost),
+        profile: buildProfileOverview(userQuery.data.user, isOwnProfile),
+        posts: posts.map((post) => mapToFeedPost(post, isOwnProfile)),
         hasMorePosts: postsQuery.hasNextPage ?? false,
       };
     }
-
-    if (meData?.user) {
-      return {
-        profile: buildProfileOverview(
-          {
-            id: meData.user.id,
-            name: meData.user.name,
-            email: meData.user.email,
-            handle: meData.user.email.split("@")[0] ?? "user",
-            avatarUrl: meData.user.avatarUrl,
-            profileBgColor: meData.user.profileBgColor,
-          },
-          true,
-        ),
-        posts: [],
-        hasMorePosts: false,
-      };
-    }
-
     return null;
-  }, [meData?.user, postsQuery.data?.pages, postsQuery.hasNextPage, userQuery.data?.user]);
+  }, [userQuery.data?.user, postsQuery.data?.pages, postsQuery.hasNextPage, isOwnProfile]);
 
   if (!profileData) {
     return (
       <div className="space-y-4">
         <PanelCard className="p-6 text-sm text-slate-600 dark:text-slate-300">
-          {isLoadingMe ? "Loading profile..." : "Unable to load profile."}
+          {isLoadingMe || userQuery.isLoading ? "Loading profile..." : "User not found."}
         </PanelCard>
       </div>
     );

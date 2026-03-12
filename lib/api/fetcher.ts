@@ -3,6 +3,35 @@ import axios, { AxiosError } from "axios";
 import type { ApiErrorPayload, ApiRequestOptions } from "@/types/api";
 import { useAuthStore } from "@/store/auth-store";
 
+let redirectingForAuth = false;
+
+function isInvalidToken(payload?: ApiErrorPayload, status?: number) {
+  if (status === 401) return true;
+  const message = payload?.message?.toLowerCase();
+  return message === "invalid token" || message === "unauthorized";
+}
+
+async function handleInvalidAuth(): Promise<void> {
+  if (typeof window === "undefined" || redirectingForAuth) return;
+  redirectingForAuth = true;
+
+  try {
+    await axios.post(
+      resolveUrl("/api/auth/logout"),
+      {},
+      { withCredentials: true },
+    );
+  } catch {
+    // ignore logout failures
+  }
+
+  useAuthStore.getState().clearUser();
+  useAuthStore.getState().clearToken();
+
+  const next = window.location.pathname + window.location.search;
+  window.location.assign(`/login?next=${encodeURIComponent(next)}`);
+}
+
 export class ApiError extends Error {
   status: number;
   payload?: ApiErrorPayload;
@@ -56,6 +85,9 @@ export async function apiFetch<TResponse>(
     const status = axiosError.response?.status ?? 500;
     const payload = axiosError.response?.data;
     const message = payload?.message ?? axiosError.message ?? "Request failed";
+    if (isInvalidToken(payload, status)) {
+      handleInvalidAuth();
+    }
     throw new ApiError(message, status, payload);
   }
 }

@@ -1,4 +1,4 @@
-import { MOCK_USERS, MOCK_POSTS, MOCK_REPORTS } from "./mock-data";
+import { User, Post, Report } from "./admin";
 
 type PaginatedResponse<T> = {
   data: T[];
@@ -33,13 +33,13 @@ export async function getPaginatedData<T>(
 }
 
 export const fetchUsers = (page: number, limit: number, search: string) =>
-  getPaginatedData(MOCK_USERS, page, limit, search, ["name", "email"]);
+  getPaginatedData<User>([], page, limit, search, ["name", "email"]);
 
 export const fetchPosts = (page: number, limit: number, search: string) =>
-  getPaginatedData(MOCK_POSTS, page, limit, search, ["title", "authorName"]);
+  getPaginatedData<Post>([], page, limit, search, ["title", "authorName"]);
 
 export const fetchReports = (page: number, limit: number, search: string) =>
-  getPaginatedData(MOCK_REPORTS, page, limit, search, [
+  getPaginatedData<Report>([], page, limit, search, [
     "targetTitle",
     "reporterName",
     "reason",

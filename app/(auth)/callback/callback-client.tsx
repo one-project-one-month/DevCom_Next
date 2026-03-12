@@ -25,7 +25,6 @@ export function OAuthCallbackClient() {
   useEffect(() => {
     if (authQuery.data?.user) {
       useAuthStore.getState().setUser(authQuery.data.user);
-      console.log("OAuth user:", authQuery.data.user);
       router.replace("/");
     }
   }, [authQuery.data?.user, router]);

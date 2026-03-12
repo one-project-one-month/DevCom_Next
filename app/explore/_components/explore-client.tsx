@@ -14,8 +14,10 @@ import Link from "next/link";
 import { FeedPostCard } from "@/components/dashboard/feed-post-card";
 import { PanelCard } from "@/components/dashboard/shared";
 import { cn } from "@/lib/utils";
-import { feedPosts, knowledgeTopics } from "@/components/dashboard/data";
+import type { FeedPost } from "@/components/dashboard/types";
 
+const feedPosts: FeedPost[] = [];
+const knowledgeTopics: { label: string; threads: number }[] = [];
 const popularTags = [
   "TypeScript",
   "Next.js",
@@ -185,29 +187,35 @@ export function ExploreRightSidebar({
             Trending Topics
           </p>
         </div>
-        <ul className="space-y-2">
-          {knowledgeTopics.map((topic) => (
-            <li key={topic.label}>
-              <button
-                onClick={() => onTagClick(topic.label)}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition",
-                  activeTag === topic.label
-                    ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
-                )}
-              >
-                <span className="flex items-center gap-1.5">
-                  <Hash className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
-                  {topic.label}
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
-                  {topic.threads}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        {knowledgeTopics.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            No topics yet.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {knowledgeTopics.map((topic) => (
+              <li key={topic.label}>
+                <button
+                  onClick={() => onTagClick(topic.label)}
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition",
+                    activeTag === topic.label
+                      ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Hash className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                    {topic.label}
+                  </span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    {topic.threads}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </PanelCard>
 
       <PanelCard className="p-4">

@@ -1,3 +1,5 @@
+import type { FeedPost } from "@/components/dashboard/types";
+
 export type ProfileOverview = {
   id: string;
   isOwnProfile: boolean;
@@ -13,4 +15,6 @@ export type ProfileOverview = {
 
 export type ProfilePageData = {
   profile: ProfileOverview;
+  posts: FeedPost[];
+  hasMorePosts: boolean;
 };

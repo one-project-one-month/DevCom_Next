@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { FeedPostCard } from "@/components/dashboard/feed-post-card";
-import { feedPosts } from "@/components/dashboard/data";
 import { PanelCard } from "@/components/dashboard/shared";
+import type { FeedPost } from "@/components/dashboard/types";
+import { apiFetch } from "@/lib/api/fetcher";
+import { useAuthStore } from "@/store/auth-store";
 
 function PostCreatorCard() {
   return (
@@ -41,18 +44,150 @@ function PostCreatorCard() {
   );
 }
 
+type FeedApiPost = {
+  id: string;
+  title: string;
+  body: string;
+  tags: string[];
+  status: "published" | "draft" | "flagged";
+  helpfulCount: number;
+  commentsCount: number;
+  reactionCount: number;
+  viewerHasHelpful?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: {
+    id: string;
+    name: string;
+    handle: string;
+    avatarUrl?: string;
+  };
+};
+
+type FeedResponse = {
+  posts: FeedApiPost[];
+  nextCursor?: string;
+  hasMore: boolean;
+};
+
+function formatRelativeTime(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (Number.isNaN(diffMs)) return "just now";
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w`;
+  const months = Math.floor(days / 30);
+  return `${months}mo`;
+}
+
+function mapToFeedPost(post: FeedApiPost, viewerId?: string): FeedPost {
+  return {
+    id: post.id,
+    isOwnPost: viewerId ? post.author.id === viewerId : false,
+    postType: "Post",
+    name: post.author.name,
+    handle: post.author.handle.startsWith("@")
+      ? post.author.handle
+      : `@${post.author.handle}`,
+    avatarUrl: post.author.avatarUrl,
+    time: formatRelativeTime(post.createdAt),
+    title: post.title,
+    content: post.body,
+    tags: post.tags,
+    helpful: post.helpfulCount,
+    replies: post.commentsCount,
+    saves: post.reactionCount,
+    status: post.status,
+    hasHelpful: post.viewerHasHelpful ?? false,
+  };
+}
+
 export function CenterFeed() {
-  const [posts, setPosts] = useState(feedPosts);
-  function handleDeletePost(postId: string) {
-    setPosts((current) => current.filter((item) => item.id !== postId));
-  }
+  const viewerId = useAuthStore((state) => state.user?.id);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const feedQuery = useInfiniteQuery<FeedResponse>({
+    queryKey: ["feed"],
+    queryFn: ({ pageParam }) =>
+      apiFetch<FeedResponse>("/api/posts", {
+        params: {
+          limit: 8,
+          cursor: (pageParam as string) ?? undefined,
+        },
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.nextCursor : undefined,
+    initialPageParam: undefined,
+  });
+
+  const posts = useMemo(() => {
+    const flat = feedQuery.data?.pages.flatMap((page) => page.posts) ?? [];
+    return flat.map((post) => mapToFeedPost(post, viewerId));
+  }, [feedQuery.data?.pages, viewerId]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node) return;
+    if (!feedQuery.hasNextPage || feedQuery.isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          feedQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [
+    feedQuery.hasNextPage,
+    feedQuery.isFetchingNextPage,
+    feedQuery.fetchNextPage,
+    feedQuery,
+  ]);
 
   return (
     <section className="space-y-5">
       <PostCreatorCard />
+
+      {feedQuery.isLoading ? (
+        <PanelCard className="p-6 text-sm text-slate-600 dark:text-slate-300">
+          Loading feed...
+        </PanelCard>
+      ) : null}
+
+      {!feedQuery.isLoading && posts.length === 0 ? (
+        <PanelCard className="p-6 text-center text-sm text-slate-600 dark:text-slate-300">
+          No posts yet. Be the first to share something useful.
+        </PanelCard>
+      ) : null}
+
       {posts.map((post) => (
-        <FeedPostCard key={post.id} post={post} onDelete={handleDeletePost} />
+        <FeedPostCard key={post.id} post={post} />
       ))}
+
+      <div ref={loadMoreRef} />
+
+      {feedQuery.isFetchingNextPage ? (
+        <PanelCard className="p-4 text-sm text-slate-600 dark:text-slate-300">
+          Loading more...
+        </PanelCard>
+      ) : null}
+
+      {!feedQuery.hasNextPage && posts.length > 0 ? (
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+          You&apos;ve reached the end.
+        </p>
+      ) : null}
     </section>
   );
 }

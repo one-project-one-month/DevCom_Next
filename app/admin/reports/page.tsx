@@ -106,17 +106,17 @@ export default function ReportsPage() {
     {
       label: "Review Detail",
       icon: <Search className="w-4 h-4" />,
-      onClick: (row) => console.log("Reviewing", row.id),
+      onClick: () => {},
     },
     {
       label: "Mark Resolved",
       icon: <CheckCircle className="w-4 h-4 text-green-500" />,
-      onClick: (row) => console.log("Resolving", row.id),
+      onClick: () => {},
     },
     {
       label: "Take Action",
       icon: <ShieldAlert className="w-4 h-4 text-primary" />,
-      onClick: (row) => console.log("Moderate Target", row.targetId),
+      onClick: () => {},
     },
   ];
 

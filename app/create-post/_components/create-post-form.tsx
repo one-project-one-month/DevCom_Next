@@ -11,7 +11,6 @@ import type {
   CreatePostValidationErrors,
   PostStatus,
 } from "@/app/create-post/_types";
-import { feedPosts } from "@/components/dashboard/data";
 import { PanelCard } from "@/components/dashboard/shared";
 
 const INITIAL_FORM: CreatePostFormData = {
@@ -53,27 +52,8 @@ type CreatePostFormProps = {
 };
 
 export function CreatePostForm({ editId }: CreatePostFormProps) {
-  const editingPost = useMemo(
-    () =>
-      editId ? (feedPosts.find((item) => item.id === editId) ?? null) : null,
-    [editId],
-  );
-  const [form, setForm] = useState<CreatePostFormData>(() => {
-    if (!editingPost) {
-      return INITIAL_FORM;
-    }
-
-    return {
-      title: editingPost.title,
-      postType: editingPost.postType,
-      body: editingPost.content,
-      tags: [...editingPost.tags],
-      communityId: "",
-      notifyReplies: true,
-      notifyMentions: true,
-      image: null,
-    };
-  });
+  const editingPost = null;
+  const [form, setForm] = useState<CreatePostFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<CreatePostValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>(() => {
@@ -81,13 +61,11 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
       return "";
     }
 
-    return editingPost
-      ? "Editing existing post."
-      : "Post not found for editing.";
+    return "Editing requires server data.";
   });
   const [showPreview, setShowPreview] = useState(false);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    editingPost?.imageUrl ?? null,
+    null,
   );
 
   const previewImageUrl = useMemo(() => {

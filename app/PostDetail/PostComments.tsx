@@ -1,11 +1,17 @@
 import CommentCard from "./CommentCard";
-import { commentMockData } from "./comment-mock-data";
+import type { CommentItem } from "./comment-types";
 
-export default function PostComments() {
+export default function PostComments({
+  comments,
+  onReply,
+}: {
+  comments: CommentItem[];
+  onReply?: (commentId: string, body: string) => void | Promise<void>;
+}) {
   return (
     <div className="space-y-4">
-      {commentMockData.map((comment) => (
-        <CommentCard key={comment.id} comment={comment} />
+      {comments.map((comment) => (
+        <CommentCard key={comment.id} comment={comment} onReply={onReply} />
       ))}
     </div>
   );

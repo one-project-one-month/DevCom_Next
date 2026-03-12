@@ -2,13 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, UserRoundSearch } from "lucide-react";
+import { ArrowLeft, Home, Search, Settings, UserRoundSearch, Users } from "lucide-react";
 
-import { shortcuts } from "@/components/dashboard/data";
 import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import type { AuthUser } from "@/lib/auth/types";
+import type { ShortcutItem } from "@/components/dashboard/types";
+
+const shortcuts: ShortcutItem[] = [
+  { label: "Feed", icon: Home, href: "/" },
+  { label: "Explore", icon: Search, href: "/explore" },
+  { label: "Communities", icon: Users, href: "/communities" },
+  { label: "Settings", icon: Settings, href: "/settings" },
+];
 
 function isRouteActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);

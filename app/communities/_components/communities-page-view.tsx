@@ -5,7 +5,6 @@ import { type ComponentType } from "react";
 import { CalendarDays, MessageSquareText, ThumbsUp, Users } from "lucide-react";
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { communityUsers } from "@/app/communities/_data/community.mock";
 import type { CommunityUser } from "@/app/communities/_types/community.types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PanelCard } from "@/components/dashboard/shared";
@@ -86,6 +85,8 @@ function UserCard({ user }: { user: CommunityUser }) {
 }
 
 export function CommunitiesPageView() {
+  const communityUsers: CommunityUser[] = [];
+
   return (
     <DashboardShell>
       <div className="space-y-4 pb-8">

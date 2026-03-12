@@ -96,15 +96,15 @@ export default function PostsPage() {
     {
       label: "Flag Content",
       icon: <Flag className="w-4 h-4 text-amber-500" />,
-      onClick: (row) => console.log("Flagging post", row.id),
+      onClick: () => {},
     },
     {
       label: "Delete Post",
       icon: <Trash2 className="w-4 h-4" />,
       variant: "destructive",
-      onClick: (row) =>
-        confirm("Are you sure you want to delete this post?") &&
-        console.log("Deleting", row.id),
+      onClick: () => {
+        confirm("Are you sure you want to delete this post?");
+      },
     },
   ];
 

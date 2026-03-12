@@ -2,14 +2,14 @@
 import { Copy, Flag, Heart, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import type { FeedPost } from "@/components/dashboard/types";
-import { reportPost } from "@/components/dashboard/post-actions";
+import { markHelpfulPost, reportPost } from "@/components/dashboard/post-actions";
 
 type ReactionProps = {
   post: FeedPost;
 };
 
 export default function Reaction({ post }: ReactionProps) {
-  const [isHelpful, setIsHelpful] = useState(false);
+  const [isHelpful, setIsHelpful] = useState(post.hasHelpful ?? false);
   const [helpfulCount, setHelpfulCount] = useState(post.helpful);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
@@ -17,10 +17,16 @@ export default function Reaction({ post }: ReactionProps) {
   const [isReporting, setIsReporting] = useState(false);
   const [isReported, setIsReported] = useState(false);
 
-  const handleHelpful = () => {
+  const handleHelpful = async () => {
     const next = !isHelpful;
     setIsHelpful(next);
     setHelpfulCount((current) => Math.max(0, current + (next ? 1 : -1)));
+
+    const result = await markHelpfulPost(post.id, next);
+    if (!result.ok) {
+      setIsHelpful(!next);
+      setHelpfulCount((current) => Math.max(0, current + (next ? -1 : 1)));
+    }
   };
 
   const handleCopy = async () => {

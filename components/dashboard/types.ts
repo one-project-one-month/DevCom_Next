@@ -35,6 +35,7 @@ export type FeedPost = {
   postType: "Post";
   name: string;
   handle: string;
+  avatarUrl?: string;
   time: string;
   title: string;
   content: string;
@@ -43,4 +44,5 @@ export type FeedPost = {
   helpful: number;
   replies: number;
   saves: number;
+  hasHelpful?: boolean;
 };

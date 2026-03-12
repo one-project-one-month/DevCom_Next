@@ -1,47 +1,65 @@
 "use client";
-
-import { FilterComment } from "./FilterComment";
 import { Field } from "@/components/ui/field";
 import PostComments from "./PostComments";
 import CommentEditorSection from "./CommentEditorSection";
 import Image from "next/image";
-import { commentMockData } from "./comment-mock-data";
+import type { CommentItem } from "./comment-types";
 
-export default function CommentSection() {
-  const totalComments = commentMockData.length;
-
+export default function CommentSection({
+  comments,
+  onSubmitComment,
+  onSubmitReply,
+  isSubmitting,
+  avatarUrl,
+  fixedEditor = false,
+  showEditor = true,
+}: {
+  comments: CommentItem[];
+  onSubmitComment: (value: string) => void | Promise<void>;
+  onSubmitReply?: (commentId: string, body: string) => void | Promise<void>;
+  isSubmitting?: boolean;
+  avatarUrl?: string;
+  fixedEditor?: boolean;
+  showEditor?: boolean;
+}) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:p-5">
-      <div className="mt-1 flex items-center justify-between gap-3">
-        <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
-          Discussion ({totalComments})
-        </div>
-        <div>
-          <FilterComment />
-        </div>
+    <div className="relative">
+      <div>
+        <PostComments comments={comments} onReply={onSubmitReply} />
       </div>
 
-      <div
-        className="mb-8 mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60"
-        id="comment-editor"
-      >
-        <div className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
-          Add to the discussion
+      {showEditor ? (
+        <div
+          className={`${
+            fixedEditor
+              ? "sticky bottom-0 z-10 mb-0 border-t border-slate-200 bg-white/95 px-0 py-2 backdrop-blur dark:border-slate-700 dark:bg-slate-900/90"
+              : "mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60"
+          }`}
+          id="comment-editor"
+        >
+          <div className="flex items-center gap-2 px-2">
+            {avatarUrl ? (
+            <Image
+              width={500}
+              height={500}
+              src={avatarUrl}
+              alt="User Avatar"
+              style={{ width: "auto", height: "auto" }}
+              className="h-8 w-8 rounded-full bg-slate-200 object-cover dark:bg-slate-700"
+            />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+            )}
+            <Field className="w-full">
+              <CommentEditorSection
+                onSubmit={onSubmitComment}
+                isSubmitting={isSubmitting}
+                compact={fixedEditor}
+              />
+            </Field>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Image
-            width={500}
-            height={500}
-            src="https://avatars.githubusercontent.com/u/12345678?v=4"
-            alt="User Avatar"
-            className="mb-2 h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700"
-          />
-          <Field className="w-full">
-            <CommentEditorSection />
-          </Field>
-        </div>
-      </div>
-      <PostComments />
+      ) : null}
     </div>
   );
 }

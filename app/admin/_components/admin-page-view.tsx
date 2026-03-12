@@ -4,7 +4,16 @@ import StatCard from "./stat-card";
 import PostsChart from "./posts-chart";
 import RecentPosts from "./recent-posts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_POSTS, MOCK_STATS, SIGNUPS_CHART_DATA } from "../_data/mock-data";
+
+const EMPTY_STATS = {
+  totalDevelopers: 0,
+  activePosts: 0,
+  newComments: 0,
+  totalReports: 0,
+};
+
+const EMPTY_SIGNUPS: { day: string; count: number }[] = [];
+const EMPTY_POSTS: { id: string; title: string; authorName: string; status: string; reportsCount: number; createdAt: string }[] = [];
 
 export function AdminPageView() {
   return (
@@ -12,25 +21,25 @@ export function AdminPageView() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Developers"
-          value={MOCK_STATS.totalDevelopers}
+          value={EMPTY_STATS.totalDevelopers}
           icon={<Users className="h-5 w-5 text-primary" />}
           color="bg-primary-dull/20"
         />
         <StatCard
           title="Active Posts"
-          value={MOCK_STATS.activePosts}
+          value={EMPTY_STATS.activePosts}
           icon={<FileText className="h-5 w-5 text-emerald-600" />}
           color="bg-emerald-100 dark:bg-emerald-500/20"
         />
         <StatCard
           title="New Comments"
-          value={MOCK_STATS.newComments}
+          value={EMPTY_STATS.newComments}
           icon={<MessageSquare className="h-5 w-5 text-sky-600" />}
           color="bg-sky-100 dark:bg-sky-500/20"
         />
         <StatCard
           title="Open Reports"
-          value={MOCK_STATS.totalReports}
+          value={EMPTY_STATS.totalReports}
           icon={<Flag className="h-5 w-5 text-amber-600" />}
           color="bg-amber-100 dark:bg-amber-500/20"
         />
@@ -44,7 +53,7 @@ export function AdminPageView() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <PostsChart data={SIGNUPS_CHART_DATA} />
+            <PostsChart data={EMPTY_SIGNUPS} />
           </CardContent>
         </Card>
 
@@ -52,7 +61,7 @@ export function AdminPageView() {
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
             Recent Posts
           </h2>
-          <RecentPosts posts={MOCK_POSTS.slice(0, 6)} />
+          <RecentPosts posts={EMPTY_POSTS} />
         </div>
       </section>
     </div>

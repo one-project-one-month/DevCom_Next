@@ -34,7 +34,6 @@ export function useMeQuery(enabled = true) {
   useEffect(() => {
     if (query.data?.user) {
       useAuthStore.getState().setUser(query.data.user);
-      console.log("Me user:", query.data.user);
     }
   }, [query.data?.user]);
   return query;
@@ -44,5 +43,4 @@ export async function logout(): Promise<void> {
   await apiFetch<{ message: string }>("/api/auth/logout", { method: "POST" });
   useAuthStore.getState().clearUser();
   useAuthStore.getState().clearToken();
-  console.log("Logout user");
 }

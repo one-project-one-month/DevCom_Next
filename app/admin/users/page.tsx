@@ -99,17 +99,17 @@ export default function UsersPage() {
     {
       label: "View Profile",
       icon: <MoreHorizontal className="w-4 h-4" />,
-      onClick: (row) => console.log("View", row),
+      onClick: () => {},
     },
     {
       label: "Promote to Admin",
       icon: <ShieldCheck className="w-4 h-4" />,
-      onClick: (row) => console.log("Promote", row),
+      onClick: () => {},
     },
     {
       label: "Suspend User",
       icon: <UserX className="w-4 h-4" />,
-      onClick: (row) => console.log("Suspend", row),
+      onClick: () => {},
     },
   ];
 

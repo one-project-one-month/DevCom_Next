@@ -20,9 +20,34 @@ function initialsFromName(name: string) {
     .join("");
 }
 
+function getLargeAvatarUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === "lh3.googleusercontent.com") {
+      parsed.searchParams.set("s", "512");
+      parsed.searchParams.set("sz", "512");
+      return parsed.toString();
+    }
+    if (parsed.hostname === "avatars.githubusercontent.com") {
+      parsed.searchParams.set("s", "512");
+      return parsed.toString();
+    }
+    if (parsed.hostname === "i.pravatar.cc") {
+      parsed.pathname = "/512";
+      return parsed.toString();
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
 export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
   const initials = initialsFromName(profile.name || "User");
   const avatarLabel = `${profile.name} avatar`;
+  const largeAvatarUrl = profile.avatarUrl
+    ? getLargeAvatarUrl(profile.avatarUrl)
+    : undefined;
 
   return (
     <PanelCard className="overflow-hidden">
@@ -49,6 +74,7 @@ export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
                       alt={avatarLabel}
                       width={80}
                       height={80}
+                      style={{ width: "auto", height: "auto" }}
                       className="h-20 w-20 rounded-full border-4 border-white object-cover transition group-hover:opacity-90 dark:border-slate-900"
                     />
                   ) : (
@@ -60,11 +86,11 @@ export function ProfileHeaderCard({ profile }: { profile: ProfileOverview }) {
               </DialogTrigger>
               <DialogContent className="bg-transparent p-0 shadow-none">
                 <DialogTitle className="sr-only">Profile photo</DialogTitle>
-                {profile.avatarUrl ? (
+                {largeAvatarUrl ? (
                   <Image
-                    src={profile.avatarUrl}
+                    src={largeAvatarUrl}
                     alt={avatarLabel}
-                    width={500}
+                    width={800}
                     height={500}
                     className="h-[500px] w-full rounded-2xl object-cover"
                   />
