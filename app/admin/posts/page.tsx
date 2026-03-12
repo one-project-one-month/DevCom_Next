@@ -17,7 +17,7 @@ export default function PostsPage() {
   const [search, setSearch] = useState("");
   const limit = 7;
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-posts", page, search],
     queryFn: () => fetchPosts(page, limit, search),
   });
@@ -122,7 +122,12 @@ export default function PostsPage() {
       onPageChange={setPage}
       summaryText={`Page ${page} of ${totalPages}`}
     >
-        <DataTable<Post> data={posts} columns={columns} actions={actions} />
+        <DataTable<Post>
+          data={posts}
+          columns={columns}
+          actions={actions}
+          isLoading={isLoading}
+        />
     </ListPageShell>
   );
 }

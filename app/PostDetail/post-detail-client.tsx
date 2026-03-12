@@ -50,6 +50,7 @@ function mapPostDetailToFeed(post: PostDetail): FeedPost {
     saves: post.reactionCount,
     status: post.status,
     hasHelpful: post.viewerHasHelpful ?? false,
+    hasReported: post.viewerHasReported ?? false,
   };
 }
 

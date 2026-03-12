@@ -28,6 +28,7 @@ type FeedPostCardProps = {
   className?: string;
   showAuthor?: boolean;
   showOpenThreadAction?: boolean;
+  highlightQuery?: string;
   onDelete?: (postId: string) => void;
   onStatusChange?: (postId: string, status: "published" | "private") => void;
 };
@@ -59,11 +60,38 @@ function statusBadgeClass(status?: string) {
     : "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/40 dark:bg-purple-500/15 dark:text-purple-200";
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(text: string, query?: string) {
+  const trimmed = query?.trim();
+  if (!trimmed) return text;
+
+  const regex = new RegExp(`(${escapeRegExp(trimmed)})`, "ig");
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    if (part.toLowerCase() === trimmed.toLowerCase()) {
+      return (
+        <span
+          key={`${part}-${index}`}
+          className="rounded bg-amber-200/70 px-1 text-slate-900 dark:bg-amber-500/30 dark:text-amber-100"
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
 export function FeedPostCard({
   post,
   className,
   showAuthor = true,
   showOpenThreadAction = true,
+  highlightQuery,
   onDelete,
   onStatusChange,
 }: FeedPostCardProps) {
@@ -71,7 +99,7 @@ export function FeedPostCard({
   const [isHelpful, setIsHelpful] = useState(post.hasHelpful ?? false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
-  const [isReported, setIsReported] = useState(false);
+  const [isReported, setIsReported] = useState(post.hasReported ?? false);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
   );
@@ -201,14 +229,14 @@ export function FeedPostCard({
                 href={profileHrefFromHandle(post.handle, post.isOwnPost)}
                 className="text-base font-semibold text-slate-900 underline-offset-2 hover:underline dark:text-slate-100"
               >
-                {post.name}
+                {highlightText(post.name, highlightQuery)}
               </Link>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 <Link
                   href={profileHrefFromHandle(post.handle, post.isOwnPost)}
                   className="hover:text-slate-700 dark:hover:text-slate-200"
                 >
-                  {post.handle}
+                  {highlightText(post.handle, highlightQuery)}
                 </Link>{" "}
                 • {post.time}
               </p>
@@ -242,7 +270,7 @@ export function FeedPostCard({
 
       <div className="group">
         <h3 className="mb-3 text-lg font-semibold text-slate-900 hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-400">
-          {post.title}
+          {highlightText(post.title, highlightQuery)}
         </h3>
         <p className="mb-3 text-base leading-7 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100">
           {visibleContent}

@@ -17,7 +17,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const limit = 7;
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-users", page, search],
     queryFn: () => fetchUsers(page, limit, search),
   });
@@ -127,7 +127,12 @@ export default function UsersPage() {
       onPageChange={setPage}
       summaryText={`Showing page ${page} of ${totalPages}`}
     >
-        <DataTable<User> data={users} columns={columns} actions={actions} />
+        <DataTable<User>
+          data={users}
+          columns={columns}
+          actions={actions}
+          isLoading={isLoading}
+        />
     </ListPageShell>
   );
 }

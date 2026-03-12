@@ -42,3 +42,9 @@ export interface AdminStats {
   newComments: number;
   totalReports: number;
 }
+
+export type OverviewResponse = {
+  stats: AdminStats;
+  weeklySignups: { day: string; count: number }[];
+  recentPosts: Post[];
+};

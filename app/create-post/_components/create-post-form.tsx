@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, PenLine, Sparkles, Target } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ImageInput } from "@/app/create-post/_components/image-input";
 import { TagInput } from "@/app/create-post/_components/tag-input";
@@ -12,6 +14,7 @@ import type {
   PostStatus,
 } from "@/app/create-post/_types";
 import { PanelCard } from "@/components/dashboard/shared";
+import { ApiError, apiFetch } from "@/lib/api/fetcher";
 
 const INITIAL_FORM: CreatePostFormData = {
   title: "",
@@ -35,10 +38,6 @@ function validateForm(
   }
 
   if (mode === "Publish") {
-    if (form.body.trim().length < 30) {
-      errors.body = "Body must be at least 30 characters for publish.";
-    }
-
     if (form.tags.length < 1 || form.tags.length > 5) {
       errors.tags = "Add between 1 and 5 tags.";
     }
@@ -52,7 +51,8 @@ type CreatePostFormProps = {
 };
 
 export function CreatePostForm({ editId }: CreatePostFormProps) {
-  const editingPost = null;
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [form, setForm] = useState<CreatePostFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<CreatePostValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,9 +64,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
     return "Editing requires server data.";
   });
   const [showPreview, setShowPreview] = useState(false);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    null,
-  );
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
   const previewImageUrl = useMemo(() => {
     if (!form.image) return null;
@@ -81,7 +79,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
   const completion = useMemo(() => {
     const required: boolean[] = [
       form.title.trim().length >= 8,
-      form.body.trim().length >= 30,
+      form.body.trim().length > 0,
       form.tags.length >= 1,
     ];
     const done = required.filter(Boolean).length;
@@ -99,7 +97,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
       {
         key: "body",
         label: "Body content (required)",
-        done: form.body.trim().length >= 30,
+        done: form.body.trim().length > 0,
         public: true,
       },
       {
@@ -138,278 +136,188 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
     setIsSubmitting(true);
     setStatusMessage("");
 
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    try {
+      await apiFetch<{ post: { id: string } }>("/api/posts", {
+        method: "POST",
+        body: {
+          title: form.title.trim(),
+          body: form.body.trim(),
+          tags: form.tags,
+          status: "published",
+        },
+      });
 
-    setIsSubmitting(false);
-    setStatusMessage(
-      mode === "Draft"
-        ? "Draft saved successfully."
-        : "Post published successfully.",
-    );
+      await queryClient.invalidateQueries({ queryKey: ["feed"] });
+      router.push("/");
+    } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : "Unable to publish post.";
+      setStatusMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-6 pb-10">
       <PanelCard className="overflow-hidden">
-        <div className="bg-linear-to-r from-sky-600 via-blue-600 to-cyan-600 p-5 text-white">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h1 className="inline-flex items-center gap-2 text-lg font-semibold">
-              <PenLine className="h-5 w-5" />
-              {editId ? "Edit Knowledge Post" : "Create Knowledge Post"}
-            </h1>
-            <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium">
+        <div className="bg-linear-to-r from-emerald-500/15 via-sky-500/10 to-blue-500/15 p-6 dark:from-emerald-500/20 dark:via-sky-500/15 dark:to-blue-500/20">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                Publish Flow
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                {editId ? "Edit Knowledge Post" : "Create a Knowledge Post"}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
+                Focus on clarity. Share context, what you tried, and the outcome
+                you want.
+              </p>
+            </div>
+            <div className="rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-medium text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200">
               Completion {completion}%
-            </span>
+            </div>
           </div>
-          <p className="mt-1 text-sm text-blue-50">
-            Write a high-signal post with clear context, useful tags, and
-            publish checks.
-          </p>
         </div>
       </PanelCard>
 
-      <div className="space-y-4">
-        <PanelCard className="p-5">
+      <div className="space-y-6">
+        <PanelCard className="p-6">
+          <div className="space-y-5">
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Title
+              </span>
+              <input
+                value={form.title}
+                onChange={(event) =>
+                  setForm({ ...form, title: event.target.value })
+                }
+                className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-base outline-none transition focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
+                placeholder="Write a clear, searchable title"
+              />
+              {errors.title ? (
+                <span className="text-xs text-red-600 dark:text-red-300">
+                  {errors.title}
+                </span>
+              ) : null}
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Body
+              </span>
+              <textarea
+                value={form.body}
+                onChange={(event) =>
+                  setForm({ ...form, body: event.target.value })
+                }
+                className="min-h-64 rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-7 outline-none transition focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
+                placeholder="Start with context. Add what you tried, current behavior, and desired outcome."
+              />
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>
+                  {errors.body ??
+                    "Clear context and constraints make faster replies."}
+                </span>
+                <span>{bodyCount}/10000</span>
+              </div>
+            </label>
+          </div>
+        </PanelCard>
+
+        <PanelCard className="p-6">
           <div className="grid gap-5">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Core Post Details
-              </p>
-
-              <div className="grid gap-4">
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    Title *
-                  </span>
-                  <input
-                    value={form.title}
-                    onChange={(event) =>
-                      setForm({ ...form, title: event.target.value })
-                    }
-                    className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
-                    placeholder="Write a clear, searchable title"
-                  />
-                  {errors.title ? (
-                    <span className="text-xs text-red-600 dark:text-red-300">
-                      {errors.title}
-                    </span>
-                  ) : null}
-                </label>
-
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    Content *
-                  </span>
-                  <textarea
-                    value={form.body}
-                    onChange={(event) =>
-                      setForm({ ...form, body: event.target.value })
-                    }
-                    className="min-h-44 rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
-                    placeholder="Write the main post content in markdown-friendly text"
-                  />
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <span>
-                      {errors.body ??
-                        "Use clear context, constraints, and expected outcomes."}
-                    </span>
-                    <span>{bodyCount}/10000</span>
-                  </div>
-                </label>
-              </div>
+            <div className="grid gap-2">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Tags
+              </span>
+              <TagInput
+                tags={form.tags}
+                onChange={(tags) => setForm({ ...form, tags })}
+              />
+              {errors.tags ? (
+                <span className="text-xs text-red-600 dark:text-red-300">
+                  {errors.tags}
+                </span>
+              ) : null}
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Context & Metadata
-              </p>
-              <div className="grid gap-4">
-                <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    Tags *
-                  </span>
-                  <TagInput
-                    tags={form.tags}
-                    onChange={(tags) => setForm({ ...form, tags })}
-                  />
-                  {errors.tags ? (
-                    <span className="text-xs text-red-600 dark:text-red-300">
-                      {errors.tags}
-                    </span>
-                  ) : null}
-                </div>
-
-                <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    Attachments
-                  </span>
-                  <ImageInput
-                    image={form.image}
-                    onChange={(image) => {
-                      setForm({ ...form, image });
-                      if (!image) {
-                        setExistingImageUrl(null);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Publishing Preferences
-              </p>
-              <div className="grid gap-4">
-                <div className="grid gap-1">
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    Visibility
-                  </span>
-                  <p className="h-11 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                    Public
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-4 text-sm">
-                <label className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={form.notifyReplies}
-                    onChange={(event) =>
-                      setForm({ ...form, notifyReplies: event.target.checked })
-                    }
-                  />
-                  Notify me on replies
-                </label>
-                <label className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={form.notifyMentions}
-                    onChange={(event) =>
-                      setForm({ ...form, notifyMentions: event.target.checked })
-                    }
-                  />
-                  Notify me on mentions
-                </label>
-              </div>
+            <div className="grid gap-2">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Attachment
+              </span>
+              <ImageInput
+                image={form.image}
+                onChange={(image) => {
+                  setForm({ ...form, image });
+                  if (!image) {
+                    setExistingImageUrl(null);
+                  }
+                }}
+              />
             </div>
           </div>
         </PanelCard>
 
-        <div className="space-y-4">
-          <PanelCard className="p-4">
-            <p className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-              <Target className="h-4 w-4" />
-              Publish Panel
+        {showPreview ? (
+          <PanelCard className="p-6">
+            <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
+              Live Preview
             </p>
-            <div className="mb-3 h-2 rounded-full bg-slate-200 dark:bg-slate-700">
-              <div
-                className="h-2 rounded-full bg-linear-to-r from-sky-500 to-blue-600 transition-all"
-                style={{ width: `${completion}%` }}
-              />
-            </div>
-            <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
-              Complete required fields to publish with confidence.
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {form.title || "Untitled post"}
+            </h2>
+            <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {form.body || "No content yet."}
             </p>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => submitForm("Draft")}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                disabled={isSubmitting}
-              >
-                Save Draft
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPreview((prev) => !prev)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                {showPreview ? "Hide Preview" : "Preview"}
-              </button>
-              <button
-                type="button"
-                onClick={() => submitForm("Publish")}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Publish"}
-              </button>
-            </div>
-
-            {statusMessage ? (
-              <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
-                {statusMessage}
-              </p>
-            ) : null}
-          </PanelCard>
-
-          <PanelCard className="p-4">
-            <p className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-              <Sparkles className="h-4 w-4" />
-              Quality Checklist
-            </p>
-            <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-              {requiredChecks.map((check) => (
-                <li
-                  key={check.key}
-                  className="flex items-center justify-between gap-2"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <CheckCircle2
-                      className={`h-3.5 w-3.5 ${check.done ? "text-emerald-600" : "text-slate-400"}`}
-                    />
-                    {check.label}
-                  </span>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                    {check.public ? "Public" : "Optional"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </PanelCard>
-
-          {showPreview ? (
-            <PanelCard className="p-4">
-              <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">
-                Live Preview
-              </p>
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                {form.title || "Untitled post"}
-              </h2>
-              <span className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                {form.postType}
-              </span>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
-                {form.body || "No content yet."}
-              </p>
-              {previewImageUrl || existingImageUrl ? (
-                <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
-                  <Image
-                    src={previewImageUrl ?? existingImageUrl ?? ""}
-                    alt="Preview upload"
-                    width={480}
-                    height={280}
-                    className="h-auto w-full rounded-lg object-cover"
-                  />
-                </div>
-              ) : null}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {form.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                  >
-                    {tag}
-                  </span>
-                ))}
+            {previewImageUrl || existingImageUrl ? (
+              <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+                <Image
+                  src={previewImageUrl ?? existingImageUrl ?? ""}
+                  alt="Preview upload"
+                  width={480}
+                  height={280}
+                  className="h-auto w-full rounded-xl object-cover"
+                />
               </div>
-            </PanelCard>
+            ) : null}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {form.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </PanelCard>
+        ) : null}
+      </div>
+
+      <PanelCard className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            Publish
+          </p>
+          {statusMessage ? (
+            <span className="text-xs text-slate-600 dark:text-slate-300">
+              {statusMessage}
+            </span>
           ) : null}
         </div>
-      </div>
+        <button
+          type="button"
+          onClick={() => submitForm("Publish")}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+          disabled={isSubmitting}
+        >
+          <Sparkles className="h-4 w-4" />
+          {isSubmitting ? "Submitting..." : "Publish"}
+        </button>
+      </PanelCard>
     </div>
   );
 }

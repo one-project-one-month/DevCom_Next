@@ -13,6 +13,7 @@ export type PostDetail = {
   status: "published" | "draft" | "flagged";
   helpfulCount: number;
   viewerHasHelpful?: boolean;
+  viewerHasReported?: boolean;
   commentsCount: number;
   reactionCount: number;
   createdAt: string;

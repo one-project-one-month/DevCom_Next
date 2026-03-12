@@ -36,5 +36,13 @@ export async function deletePost(postId: string): Promise<PostActionResult> {
 }
 
 export async function reportPost(_postId: string): Promise<PostActionResult> {
-  return { ok: true };
+  try {
+    await apiFetch("/api/reports", {
+      method: "POST",
+      body: { targetType: "Post", targetId: _postId },
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
 }

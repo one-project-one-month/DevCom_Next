@@ -2,18 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Home, Search, Settings, UserRoundSearch, Users } from "lucide-react";
+import { ArrowLeft, Home, Settings, UserRoundSearch } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { AvatarCircle, PanelCard } from "@/components/dashboard/shared";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
 import type { AuthUser } from "@/lib/auth/types";
 import type { ShortcutItem } from "@/components/dashboard/types";
+import { apiFetch } from "@/lib/api/fetcher";
 
 const shortcuts: ShortcutItem[] = [
   { label: "Feed", icon: Home, href: "/" },
-  { label: "Explore", icon: Search, href: "/explore" },
-  { label: "Communities", icon: Users, href: "/communities" },
   { label: "Settings", icon: Settings, href: "/settings" },
 ];
 
@@ -33,18 +33,39 @@ function ProfileCard({
   const isActive = isRouteActive(pathname, "/profile");
   const displayName = user?.name ?? "Anonymous User";
   const profileBgColor = user?.profileBgColor;
+  const statsQuery = useQuery<{
+    user: { id: string };
+    stats: { threads: number; helpful: number };
+  }>({
+    queryKey: ["me-with-stats", user?.id],
+    queryFn: () =>
+      apiFetch<{
+        user: { id: string };
+        stats: { threads: number; helpful: number };
+      }>("/api/users/me"),
+    enabled: Boolean(user?.id),
+    staleTime: 60_000,
+  });
+  const threads = statsQuery.data?.stats.threads ?? 0;
+  const helpful = statsQuery.data?.stats.helpful ?? 0;
+
+  const handle =
+    statsQuery.data?.user && "handle" in statsQuery.data.user
+      ? (statsQuery.data.user as { handle: string }).handle
+      : "";
 
   return (
     <PanelCard className="overflow-hidden">
       <div
         className="h-16 sm:h-20"
         style={{
-          background: profileBgColor ?? "linear-gradient(90deg,#3b82f6,#6366f1)",
+          background:
+            profileBgColor ?? "linear-gradient(90deg,#3b82f6,#6366f1)",
         }}
       />
       <div className="px-4 pb-4 sm:px-5 sm:pb-5">
         <AvatarCircle
-          className="-mt-7 mb-3 h-14 w-14 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16"
+          className="-mt-7 mb-1 h-22 w-22 border-4 border-white dark:border-slate-900 sm:-mt-8 sm:h-16 sm:w-16"
           imageUrl={user?.avatarUrl}
           name={displayName}
         />
@@ -58,11 +79,16 @@ function ProfileCard({
             {displayName}
           </h2>
         )}
+        {handle && (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {handle.startsWith("@") ? handle : `@${handle}`}
+          </p>
+        )}
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-center">
           <div>
             <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              128
+              {statsQuery.isLoading ? "—" : threads}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Threads
@@ -70,7 +96,7 @@ function ProfileCard({
           </div>
           <div>
             <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              884
+              {statsQuery.isLoading ? "—" : helpful}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Helpful
@@ -169,7 +195,11 @@ export function LeftSidebar() {
       {isPublicProfileRoute ? (
         <PublicProfileContextCard pathname={pathname} />
       ) : (
-        <ProfileCard pathname={pathname} user={user} isLoading={isLoadingUser} />
+        <ProfileCard
+          pathname={pathname}
+          user={user}
+          isLoading={isLoadingUser}
+        />
       )}
       <ShortcutsCard pathname={pathname} />
     </aside>

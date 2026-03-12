@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Search, CheckCircle, ShieldAlert } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Report } from "../_data/admin";
-import { fetchReports } from "../_data/admin-service";
+import { fetchReports, updateReportStatus } from "../_data/admin-service";
 
 import { DataTable, Column, Action } from "../_components/data-table";
 import ListPageShell from "../_components/list-page-shell";
@@ -16,10 +16,21 @@ export default function ReportsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 7;
+  const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-reports", page, search],
     queryFn: () => fetchReports(page, limit, search),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "OPEN" | "IN_REVIEW" | "RESOLVED" }) =>
+      updateReportStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-reports"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
   });
 
   const reports = data?.data ?? [];
@@ -106,17 +117,23 @@ export default function ReportsPage() {
     {
       label: "Review Detail",
       icon: <Search className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: (report) => {
+        statusMutation.mutate({ id: report.id, status: "IN_REVIEW" });
+      },
     },
     {
       label: "Mark Resolved",
       icon: <CheckCircle className="w-4 h-4 text-green-500" />,
-      onClick: () => {},
+      onClick: (report) => {
+        statusMutation.mutate({ id: report.id, status: "RESOLVED" });
+      },
     },
     {
       label: "Take Action",
       icon: <ShieldAlert className="w-4 h-4 text-primary" />,
-      onClick: () => {},
+      onClick: (report) => {
+        statusMutation.mutate({ id: report.id, status: "IN_REVIEW" });
+      },
     },
   ];
 
@@ -134,7 +151,12 @@ export default function ReportsPage() {
       onPageChange={setPage}
       summaryText={`Showing ${reports.length} moderation items`}
     >
-        <DataTable<Report> data={reports} columns={columns} actions={actions} />
+        <DataTable<Report>
+          data={reports}
+          columns={columns}
+          actions={actions}
+          isLoading={isLoading}
+        />
     </ListPageShell>
   );
 }

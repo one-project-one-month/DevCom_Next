@@ -34,7 +34,7 @@ export default function LoginPage() {
                   Stay aligned
                 </p>
                 <p className="mt-2">
-                  Follow communities and save key insights.
+                  Follow topics and save key insights.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/60">

@@ -4,6 +4,7 @@ import { useMemo, useRef, useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { FeedPostCard } from "@/components/dashboard/feed-post-card";
 import { PanelCard } from "@/components/dashboard/shared";
@@ -54,6 +55,7 @@ type FeedApiPost = {
   commentsCount: number;
   reactionCount: number;
   viewerHasHelpful?: boolean;
+  viewerHasReported?: boolean;
   createdAt: string;
   updatedAt: string;
   author: {
@@ -105,20 +107,24 @@ function mapToFeedPost(post: FeedApiPost, viewerId?: string): FeedPost {
     saves: post.reactionCount,
     status: post.status,
     hasHelpful: post.viewerHasHelpful ?? false,
+    hasReported: post.viewerHasReported ?? false,
   };
 }
 
 export function CenterFeed() {
   const viewerId = useAuthStore((state) => state.user?.id);
+  const searchParams = useSearchParams();
+  const searchQuery = (searchParams.get("q") ?? "").trim().toLowerCase();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const feedQuery = useInfiniteQuery<FeedResponse>({
-    queryKey: ["feed"],
+    queryKey: ["feed", searchQuery],
     queryFn: ({ pageParam }) =>
       apiFetch<FeedResponse>("/api/posts", {
         params: {
           limit: 8,
           cursor: (pageParam as string) ?? undefined,
+          q: searchQuery || undefined,
         },
       }),
     getNextPageParam: (lastPage) =>
@@ -130,6 +136,21 @@ export function CenterFeed() {
     const flat = feedQuery.data?.pages.flatMap((page) => page.posts) ?? [];
     return flat.map((post) => mapToFeedPost(post, viewerId));
   }, [feedQuery.data?.pages, viewerId]);
+
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery) return posts;
+
+    return posts.filter((post) => {
+      const matchesTitle = post.title.toLowerCase().includes(searchQuery);
+      const matchesTags = post.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery),
+      );
+      const matchesName = post.name.toLowerCase().includes(searchQuery);
+      const matchesHandle = post.handle.toLowerCase().includes(searchQuery);
+
+      return matchesTitle || matchesTags || matchesName || matchesHandle;
+    });
+  }, [posts, searchQuery]);
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -171,8 +192,18 @@ export function CenterFeed() {
         </PanelCard>
       ) : null}
 
-      {posts.map((post) => (
-        <FeedPostCard key={post.id} post={post} />
+      {!feedQuery.isLoading && posts.length > 0 && filteredPosts.length === 0 ? (
+        <PanelCard className="p-6 text-center text-sm text-slate-600 dark:text-slate-300">
+          No posts match this search.
+        </PanelCard>
+      ) : null}
+
+      {filteredPosts.map((post) => (
+        <FeedPostCard
+          key={post.id}
+          post={post}
+          highlightQuery={searchQuery}
+        />
       ))}
 
       <div ref={loadMoreRef} />

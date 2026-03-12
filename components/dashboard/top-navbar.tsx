@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import { Home, LayoutGrid, LogOut, Menu, Search, Sparkles, X } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -22,7 +22,7 @@ export function TopNavbar({
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const onScroll = () => {
@@ -35,26 +35,21 @@ export function TopNavbar({
   }, []);
 
   useEffect(() => {
-    if (pathname !== "/explore") {
-      // setSearchQuery("");
-      return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    // setSearchQuery(params.get("q") ?? "");
-  }, [pathname]);
+    setSearchQuery(searchParams.get("q") ?? "");
+  }, [searchParams]);
 
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalized = searchQuery.trim().toLowerCase();
     if (!normalized) {
+      router.push("/");
       return;
     }
 
     const params = new URLSearchParams();
     params.set("q", normalized);
-    router.push(`/explore?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   }
 
   async function handleLogout() {

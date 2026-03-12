@@ -62,6 +62,7 @@ function mapPostDetailToFeed(post: PostDetail): FeedPost {
     saves: post.reactionCount,
     status: post.status,
     hasHelpful: post.viewerHasHelpful ?? false,
+    hasReported: post.viewerHasReported ?? false,
   };
 }
 
@@ -76,6 +77,15 @@ function mapCommentToItem(comment: CommentDetail): CommentItem {
     parentId: comment.parentId,
     replies: comment.replies?.map(mapCommentToItem) ?? [],
   };
+}
+
+function initialsFromName(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
 }
 
 export function PostDetailDialog({
@@ -137,7 +147,31 @@ export function PostDetailDialog({
       <DialogContent className="flex h-[80vh] w-[92vw] max-w-4xl flex-col overflow-hidden border-slate-200 bg-white p-0 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
         <DialogTitle className="sr-only">Post detail</DialogTitle>
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-          <div className="text-sm font-semibold">Post detail</div>
+          <div className="flex items-center gap-3">
+            {post?.avatarUrl ? (
+              <Image
+                src={post.avatarUrl}
+                alt={`${post.name} avatar`}
+                width={40}
+                height={40}
+                className="h-9 w-9 rounded-full border border-slate-200 object-cover dark:border-slate-700"
+              />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 text-xs font-semibold text-white">
+                {post?.name ? initialsFromName(post.name) : "PD"}
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                {post?.name ?? "Post detail"}
+              </span>
+              {post ? (
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {post.handle} • {post.time}
+                </span>
+              ) : null}
+            </div>
+          </div>
           <DialogClose aria-label="Close dialog">
             <DialogCloseIcon />
           </DialogClose>

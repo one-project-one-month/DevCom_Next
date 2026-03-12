@@ -35,6 +35,7 @@ type FeedApiPost = {
   commentsCount: number;
   reactionCount: number;
   viewerHasHelpful?: boolean;
+  viewerHasReported?: boolean;
   createdAt: string;
   updatedAt: string;
   author: {
@@ -105,6 +106,7 @@ function mapToFeedPost(post: FeedApiPost): FeedPost {
     saves: post.reactionCount,
     status: post.status,
     hasHelpful: post.viewerHasHelpful ?? false,
+    hasReported: post.viewerHasReported ?? false,
   };
 }
 

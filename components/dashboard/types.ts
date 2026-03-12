@@ -45,4 +45,5 @@ export type FeedPost = {
   replies: number;
   saves: number;
   hasHelpful?: boolean;
+  hasReported?: boolean;
 };

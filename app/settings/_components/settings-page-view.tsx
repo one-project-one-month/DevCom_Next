@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, useMemo, useState } from "react";
 import { Camera } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -22,7 +22,6 @@ type EditableProfile = {
   role: string;
   location: string;
   bio: string;
-  expertise: string;
   avatarUrl: string;
 };
 
@@ -36,7 +35,6 @@ type UserResponse = {
     role?: string;
     location?: string;
     bio?: string;
-    expertise?: string[];
     profileBgColor?: string;
   };
 };
@@ -47,7 +45,6 @@ const emptyProfile: EditableProfile = {
   role: "",
   location: "",
   bio: "",
-  expertise: "",
   avatarUrl: "",
 };
 
@@ -56,11 +53,26 @@ function formatHandle(handle?: string) {
   return handle.startsWith("@") ? handle : `@${handle}`;
 }
 
-function parseExpertise(input: string) {
-  return input
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
+function getHighResAvatarUrl(url: string) {
+  if (!url || url.startsWith("blob:")) {
+    return url;
+  }
+
+  if (url.includes("googleusercontent.com")) {
+    return url.replace(/=s\\d+-c/g, "=s256-c").replace(/=s\\d+/g, "=s256");
+  }
+
+  if (url.includes("avatars.githubusercontent.com")) {
+    try {
+      const parsed = new URL(url);
+      parsed.searchParams.set("s", "256");
+      return parsed.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  return url;
 }
 
 function mapToEditableProfile(user: UserResponse["user"]): EditableProfile {
@@ -70,7 +82,6 @@ function mapToEditableProfile(user: UserResponse["user"]): EditableProfile {
     role: user.role ?? "Member",
     location: user.location ?? "",
     bio: user.bio ?? "",
-    expertise: user.expertise?.join(", ") ?? "",
     avatarUrl: user.avatarUrl ?? "",
   };
 }
@@ -87,28 +98,44 @@ export function SettingsPageView() {
     retry: false,
   });
 
-  const [profile, setProfile] = useState<EditableProfile>(emptyProfile);
-  const [originalProfile, setOriginalProfile] = useState<EditableProfile>(emptyProfile);
-
-  useEffect(() => {
-    if (userQuery.data?.user) {
-      const mapped = mapToEditableProfile(userQuery.data.user);
-      setProfile(mapped);
-      setOriginalProfile(mapped);
-    }
-  }, [userQuery.data?.user]);
-
-  const hasChanges = useMemo(
-    () => JSON.stringify(profile) !== JSON.stringify(originalProfile),
-    [profile, originalProfile],
+  const [localProfile, setLocalProfile] = useState<EditableProfile | null>(
+    null,
   );
 
-  function updateField<Key extends keyof EditableProfile>(key: Key, value: EditableProfile[Key]) {
-    setProfile((current) => ({ ...current, [key]: value }));
+  const originalProfile = useMemo(
+    () =>
+      userQuery.data ? mapToEditableProfile(userQuery.data.user) : emptyProfile,
+    [userQuery.data],
+  );
+
+  const profile = localProfile ?? originalProfile;
+  const displayAvatarUrl = useMemo(
+    () => getHighResAvatarUrl(profile.avatarUrl),
+    [profile.avatarUrl],
+  );
+  const providerLabel = useMemo(() => {
+    const provider = meData?.user?.provider ?? "google";
+    if (provider === "github") return "GitHub";
+    if (provider === "google") return "Google";
+    return "Local";
+  }, [meData?.user?.provider]);
+
+  const hasChanges = useMemo(
+    () =>
+      localProfile !== null &&
+      JSON.stringify(localProfile) !== JSON.stringify(originalProfile),
+    [localProfile, originalProfile],
+  );
+
+  function updateField<Key extends keyof EditableProfile>(
+    key: Key,
+    value: EditableProfile[Key],
+  ) {
+    setLocalProfile({ ...profile, [key]: value });
   }
 
   function handleReset() {
-    setProfile(originalProfile);
+    setLocalProfile(null);
   }
 
   function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
@@ -126,10 +153,8 @@ export function SettingsPageView() {
       const body = {
         name: payload.name,
         handle: payload.handle,
-        role: payload.role,
         location: payload.location,
         bio: payload.bio,
-        expertise: parseExpertise(payload.expertise),
         avatarUrl: payload.avatarUrl,
       };
       return apiFetch<UserResponse>("/api/users/me", {
@@ -138,9 +163,7 @@ export function SettingsPageView() {
       });
     },
     onSuccess: (data) => {
-      const mapped = mapToEditableProfile(data.user);
-      setProfile(mapped);
-      setOriginalProfile(mapped);
+      setLocalProfile(null);
       useAuthStore.getState().setUser({
         id: data.user.id,
         email: data.user.email,
@@ -168,140 +191,199 @@ export function SettingsPageView() {
 
   return (
     <DashboardShell>
-      <div className="space-y-4 pb-8">
+      <div className="space-y-6 pb-10">
         <PanelCard className="p-6">
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Settings</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            Settings
+          </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Update your profile details and account preferences.
+            Manage your public profile details and how others see you.
           </p>
         </PanelCard>
 
-        <div className="grid gap-4">
-          <PanelCard className="space-y-4 p-5">
+        <PanelCard className="overflow-hidden">
+          <div className="bg-linear-to-r from-slate-900/5 via-slate-900/0 to-blue-500/10 p-6 dark:from-slate-100/5 dark:via-slate-100/0 dark:to-blue-400/10">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="group relative">
+                <Avatar
+                  size="default"
+                  className="size-32 ring-4 ring-white transition group-hover:opacity-90 dark:ring-slate-900"
+                >
+                  <AvatarImage
+                    className="h-full w-full object-cover"
+                    src={displayAvatarUrl}
+                    alt={profile.name}
+                  />
+                  <AvatarFallback>
+                    {profile.name.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <label
+                  htmlFor="settings-avatar-upload"
+                  className="absolute -bottom-1 -left-1 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition hover:scale-105 dark:bg-white dark:text-slate-900"
+                >
+                  <Camera className="h-4 w-4" />
+                </label>
+              </div>
+              <input
+                id="settings-avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+
+              <div className="min-w-[180px]">
+                <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  {profile.name || "Your name"}
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {profile.handle || "@handle"}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Tap the camera to pick a new photo.
+                </p>
+              </div>
+
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <Button
+                  disabled={!hasChanges || updateMutation.isPending}
+                  onClick={() => updateMutation.mutate(profile)}
+                >
+                  {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleReset}
+                  disabled={!hasChanges}
+                >
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 p-6">
             <div>
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Edit Profile</h2>
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                Profile details
+              </h2>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Changes here are reflected in your public profile card.
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-900/60">
-              <div className="flex justify-center">
-                <label htmlFor="settings-avatar-upload" className="group relative cursor-pointer">
-                  <Avatar size="lg" className="size-24 ring-4 ring-white transition group-hover:opacity-90 dark:ring-slate-800">
-                    <AvatarImage src={profile.avatarUrl} alt={profile.name} />
-                    <AvatarFallback>{profile.name.charAt(0) || "U"}</AvatarFallback>
-                  </Avatar>
-                  <span className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
-                    <Camera className="h-4 w-4" />
-                  </span>
-                </label>
-                <input
-                  id="settings-avatar-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </div>
-              <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
-                Avatar upload is preview-only for now. Use an image URL below to save.
-              </p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="settings-name">Name</Label>
+            <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950">
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <Label
+                  htmlFor="settings-name"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Name
+                </Label>
                 <Input
                   id="settings-name"
                   value={profile.name}
                   onChange={(event) => updateField("name", event.target.value)}
                   placeholder="Your display name"
                   disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="settings-handle">Handle</Label>
-                <Input
-                  id="settings-handle"
-                  value={profile.handle}
-                  onChange={(event) => updateField("handle", event.target.value)}
-                  placeholder="@your.handle"
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="settings-role">Role</Label>
-                <Input
-                  id="settings-role"
-                  value={profile.role}
-                  onChange={(event) => updateField("role", event.target.value)}
-                  placeholder="Frontend Engineer"
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="settings-location">Location</Label>
-                <Input
-                  id="settings-location"
-                  value={profile.location}
-                  onChange={(event) => updateField("location", event.target.value)}
-                  placeholder="City, Country"
-                  disabled={isLoading}
+                  className="sm:max-w-md"
                 />
               </div>
 
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="settings-bio">Bio</Label>
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <Label
+                  htmlFor="settings-handle"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Handle
+                </Label>
+                <Input
+                  id="settings-handle"
+                  value={profile.handle}
+                  onChange={(event) =>
+                    updateField("handle", event.target.value)
+                  }
+                  placeholder="@your.handle"
+                  disabled={isLoading}
+                  className="sm:max-w-md"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <Label
+                  htmlFor="settings-role"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Role
+                </Label>
+                <Input
+                  id="settings-role"
+                  value={profile.role}
+                  placeholder="Frontend Engineer"
+                  disabled
+                  className="sm:max-w-md"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <Label
+                  htmlFor="settings-provider"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Login provider
+                </Label>
+                <Input
+                  id="settings-provider"
+                  value={providerLabel}
+                  disabled
+                  className="sm:max-w-md"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <Label
+                  htmlFor="settings-location"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Location
+                </Label>
+                <Input
+                  id="settings-location"
+                  value={profile.location}
+                  onChange={(event) =>
+                    updateField("location", event.target.value)
+                  }
+                  placeholder="City, Country"
+                  disabled={isLoading}
+                  className="sm:max-w-md"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
+                <Label
+                  htmlFor="settings-bio"
+                  className="text-sm text-slate-500 dark:text-slate-400"
+                >
+                  Bio
+                </Label>
                 <Textarea
                   id="settings-bio"
                   value={profile.bio}
                   onChange={(event) => updateField("bio", event.target.value)}
                   placeholder="Write a short bio"
-                  className="min-h-24"
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="settings-expertise">Expertise (comma-separated)</Label>
-                <Input
-                  id="settings-expertise"
-                  value={profile.expertise}
-                  onChange={(event) => updateField("expertise", event.target.value)}
-                  placeholder="React, Next.js, TypeScript"
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="settings-avatar-url">Avatar URL</Label>
-                <Input
-                  id="settings-avatar-url"
-                  value={profile.avatarUrl}
-                  onChange={(event) => updateField("avatarUrl", event.target.value)}
-                  placeholder="https://..."
+                  className="min-h-24 sm:max-w-md"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={!hasChanges || updateMutation.isPending}
-                onClick={() => updateMutation.mutate(profile)}
-              >
-                {updateMutation.isPending ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button type="button" variant="outline" onClick={handleReset} disabled={!hasChanges}>
-                Reset
-              </Button>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {hasChanges ? "Unsaved changes" : "All changes saved"}
-              </span>
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              {hasChanges ? "Unsaved changes" : "All changes saved"}
             </div>
-          </PanelCard>
-        </div>
+          </div>
+        </PanelCard>
       </div>
     </DashboardShell>
   );

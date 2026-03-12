@@ -15,7 +15,7 @@ export default function Reaction({ post }: ReactionProps) {
     "idle",
   );
   const [isReporting, setIsReporting] = useState(false);
-  const [isReported, setIsReported] = useState(false);
+  const [isReported, setIsReported] = useState(post.hasReported ?? false);
 
   const handleHelpful = async () => {
     const next = !isHelpful;
