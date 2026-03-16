@@ -91,7 +91,7 @@ export default function PostsPage() {
     {
       label: "View Post",
       icon: <Eye className="w-4 h-4" />,
-      onClick: (row) => window.open(`/PostDetail/${row.id}`, "_blank"),
+      onClick: (row) => window.open(`/?post=${row.id}`, "_blank"),
     },
     {
       label: "Flag Content",

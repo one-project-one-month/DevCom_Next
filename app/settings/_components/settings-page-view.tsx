@@ -36,6 +36,7 @@ type UserResponse = {
     location?: string;
     bio?: string;
     profileBgColor?: string;
+    lastProfileChangedAt?: string;
   };
 };
 
@@ -127,6 +128,37 @@ export function SettingsPageView() {
     [localProfile, originalProfile],
   );
 
+  const profileInfoChanged = useMemo(() => {
+    if (!localProfile) return false;
+    return (
+      localProfile.name !== originalProfile.name ||
+      localProfile.handle !== originalProfile.handle ||
+      localProfile.location !== originalProfile.location ||
+      localProfile.bio !== originalProfile.bio
+    );
+  }, [localProfile, originalProfile]);
+
+  const profileCooldownInfo = useMemo(() => {
+    const lastChanged = userQuery.data?.user?.lastProfileChangedAt;
+    if (!lastChanged) {
+      return { isActive: false, daysRemaining: 0 };
+    }
+    const cooldownMs = 14 * 24 * 60 * 60 * 1000;
+    const lastTime = new Date(lastChanged).getTime();
+    if (!Number.isFinite(lastTime)) {
+      return { isActive: false, daysRemaining: 0 };
+    }
+    const endTime = lastTime + cooldownMs;
+    const remainingMs = endTime - Date.now();
+    if (remainingMs <= 0) {
+      return { isActive: false, daysRemaining: 0 };
+    }
+    return {
+      isActive: true,
+      daysRemaining: Math.max(1, Math.ceil(remainingMs / (24 * 60 * 60 * 1000))),
+    };
+  }, [userQuery.data?.user?.lastProfileChangedAt]);
+
   function updateField<Key extends keyof EditableProfile>(
     key: Key,
     value: EditableProfile[Key],
@@ -138,14 +170,52 @@ export function SettingsPageView() {
     setLocalProfile(null);
   }
 
+  const avatarMutation = useMutation<UserResponse, Error, File>({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const upload = await apiFetch<{ imageUrl: string }>("/api/uploads/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      return apiFetch<UserResponse>("/api/users/me", {
+        method: "PATCH",
+        body: { avatarUrl: upload.imageUrl },
+      });
+    },
+    onSuccess: (data) => {
+      setLocalProfile(null);
+      useAuthStore.getState().setUser({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        avatarUrl: data.user.avatarUrl,
+        profileBgColor: data.user.profileBgColor,
+        provider: useAuthStore.getState().user?.provider ?? "google",
+      });
+      userQuery.refetch();
+      toast({
+        title: "Avatar updated",
+        description: "Your new photo is live.",
+        variant: "success",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Avatar update failed",
+        description: error.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) {
       return;
     }
-
-    const localImageUrl = URL.createObjectURL(file);
-    updateField("avatarUrl", localImageUrl);
+    avatarMutation.mutate(file);
   }
 
   const updateMutation = useMutation<UserResponse, Error, EditableProfile>({
@@ -171,7 +241,9 @@ export function SettingsPageView() {
         avatarUrl: data.user.avatarUrl,
         profileBgColor: data.user.profileBgColor,
         provider: useAuthStore.getState().user?.provider ?? "google",
+        role: useAuthStore.getState().user?.role,
       });
+      userQuery.refetch();
       toast({
         title: "Profile updated",
         description: "Your changes are live.",
@@ -191,16 +263,15 @@ export function SettingsPageView() {
 
   return (
     <DashboardShell>
+      {avatarMutation.isPending ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 backdrop-blur-sm">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-200/50 bg-white/90 px-5 py-3 text-sm font-medium text-slate-700 shadow-lg dark:border-slate-800/60 dark:bg-slate-900/90 dark:text-slate-200">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-900 border-t-transparent dark:border-white dark:border-t-transparent" />
+            Updating avatar...
+          </div>
+        </div>
+      ) : null}
       <div className="space-y-6 pb-10">
-        <PanelCard className="p-6">
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Settings
-          </h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Manage your public profile details and how others see you.
-          </p>
-        </PanelCard>
-
         <PanelCard className="overflow-hidden">
           <div className="bg-linear-to-r from-slate-900/5 via-slate-900/0 to-blue-500/10 p-6 dark:from-slate-100/5 dark:via-slate-100/0 dark:to-blue-400/10">
             <div className="flex flex-wrap items-center gap-4">
@@ -220,7 +291,11 @@ export function SettingsPageView() {
                 </Avatar>
                 <label
                   htmlFor="settings-avatar-upload"
-                  className="absolute -bottom-1 -left-1 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition hover:scale-105 dark:bg-white dark:text-slate-900"
+                  className={`absolute bottom-1 -right-1 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition ${
+                    avatarMutation.isPending
+                      ? "pointer-events-none opacity-60"
+                      : "hover:scale-105"
+                  } dark:bg-white dark:text-slate-900`}
                 >
                   <Camera className="h-4 w-4" />
                 </label>
@@ -231,6 +306,7 @@ export function SettingsPageView() {
                 accept="image/*"
                 className="hidden"
                 onChange={handleAvatarChange}
+                disabled={avatarMutation.isPending}
               />
 
               <div className="min-w-[180px]">
@@ -241,13 +317,19 @@ export function SettingsPageView() {
                   {profile.handle || "@handle"}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Tap the camera to pick a new photo.
+                  {avatarMutation.isPending
+                    ? "Uploading photo..."
+                    : "Tap the camera to pick a new photo."}
                 </p>
               </div>
 
               <div className="ml-auto flex flex-wrap items-center gap-2">
                 <Button
-                  disabled={!hasChanges || updateMutation.isPending}
+                  disabled={
+                    !hasChanges ||
+                    updateMutation.isPending ||
+                    (profileInfoChanged && profileCooldownInfo.isActive)
+                  }
                   onClick={() => updateMutation.mutate(profile)}
                 >
                   {updateMutation.isPending ? "Saving..." : "Save Changes"}
@@ -265,6 +347,11 @@ export function SettingsPageView() {
           </div>
 
           <div className="space-y-4 p-6">
+            {profileInfoChanged && profileCooldownInfo.isActive ? (
+              <p className="text-xs text-amber-600 dark:text-amber-300">
+                You can update profile info again in about {profileCooldownInfo.daysRemaining} days.
+              </p>
+            ) : null}
             <div>
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                 Profile details
@@ -370,6 +457,7 @@ export function SettingsPageView() {
                 </Label>
                 <Textarea
                   id="settings-bio"
+                  maxLength={120}
                   value={profile.bio}
                   onChange={(event) => updateField("bio", event.target.value)}
                   placeholder="Write a short bio"

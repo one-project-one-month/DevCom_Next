@@ -56,6 +56,7 @@ function mapPostDetailToFeed(post: PostDetail): FeedPost {
     time: formatRelativeTime(post.createdAt),
     title: post.title,
     content: post.body,
+    imageUrl: post.imageUrl,
     tags: post.tags,
     helpful: post.helpfulCount,
     replies: post.commentsCount,
@@ -198,7 +199,7 @@ export function PostDetailDialog({
                     src={post.imageUrl}
                     alt={`${post.title} visual`}
                     width={1200}
-                    height={700}
+                    height={1200}
                     className="max-h-115 w-full object-contain"
                   />
                 </div>

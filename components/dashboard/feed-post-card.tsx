@@ -109,7 +109,7 @@ export function FeedPostCard({
   );
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const postHref = useMemo(() => `/PostDetail/${post.id}`, [post.id]);
+  const postHref = useMemo(() => `/?post=${post.id}`, [post.id]);
   const shouldTruncate = post.content.length > 260;
   const visibleContent =
     shouldTruncate && !isExpanded
@@ -216,7 +216,6 @@ export function FeedPostCard({
                 alt={`${post.name} avatar`}
                 width={40}
                 height={40}
-                style={{ width: "auto", height: "auto" }}
                 className="h-10 w-10 rounded-full border border-slate-200 object-cover dark:border-slate-700"
               />
             ) : (
@@ -289,13 +288,13 @@ export function FeedPostCard({
       </div>
 
       {post.imageUrl ? (
-        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50  dark:border-slate-700 dark:bg-slate-800">
           <Image
             src={post.imageUrl}
             alt={`${post.title} visual`}
-            width={700}
-            height={700}
-            className="h-64 w-full rounded-xl object-contain opacity-90"
+            width={1200}
+            height={1200}
+            className="max-h-115 w-full rounded-xl object-contain opacity-90"
           />
         </div>
       ) : null}
@@ -312,14 +311,14 @@ export function FeedPostCard({
             )}
           >
             <BookOpenText className="h-4 w-4" />
-            {helpfulCount} helpful
+            {helpfulCount > 0 ? `${helpfulCount} helpful` : "Helpful"}
           </button>
           <button
             type="button"
             onClick={() => setIsDetailOpen(true)}
             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
-            {post.replies} replies
+            {post.replies > 0 ? `${post.replies} replies` : "Replies"}
           </button>
         </div>
         {showOpenThreadAction ? (

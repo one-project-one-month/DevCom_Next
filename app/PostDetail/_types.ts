@@ -10,6 +10,7 @@ export type PostDetail = {
   title: string;
   body: string;
   tags: string[];
+  imageUrl?: string;
   status: "published" | "draft" | "flagged";
   helpfulCount: number;
   viewerHasHelpful?: boolean;

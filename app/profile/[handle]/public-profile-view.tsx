@@ -30,6 +30,7 @@ type FeedApiPost = {
   title: string;
   body: string;
   tags: string[];
+  imageUrl?: string;
   status: "published" | "draft" | "flagged";
   helpfulCount: number;
   commentsCount: number;
@@ -100,6 +101,7 @@ function mapToFeedPost(post: FeedApiPost, isOwnProfile: boolean): FeedPost {
     time: formatRelativeTime(post.createdAt),
     title: post.title,
     content: post.body,
+    imageUrl: post.imageUrl,
     tags: post.tags,
     helpful: post.helpfulCount,
     replies: post.commentsCount,

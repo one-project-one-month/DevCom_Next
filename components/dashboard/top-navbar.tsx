@@ -1,12 +1,13 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
-import { Home, LayoutGrid, LogOut, Menu, Search, Sparkles, X } from "lucide-react";
+import { LayoutGrid, LogOut, Menu, Search, Sparkles, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { IconButton, PanelCard } from "@/components/dashboard/shared";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { logout } from "@/hooks/use-auth";
+import { useAuthStore } from "@/store/auth-store";
 import { cn } from "@/lib/utils";
 
 type TopNavbarProps = {
@@ -23,6 +24,8 @@ export function TopNavbar({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   useEffect(() => {
     const onScroll = () => {
@@ -155,18 +158,15 @@ export function TopNavbar({
           </form>
 
           <nav className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:order-3 lg:ml-0">
-            <IconButton
-              className="hidden sm:inline-flex"
-              onClick={() => router.push("/admin")}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </IconButton>
-            <IconButton
-              onClick={() => router.push("/")}
-              aria-label="Go to feed"
-            >
-              <Home className="h-4 w-4" />
-            </IconButton>
+            {isAdmin ? (
+              <IconButton
+                className="hidden sm:inline-flex"
+                onClick={() => router.push("/admin")}
+                aria-label="Admin dashboard"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </IconButton>
+            ) : null}
             <IconButton
               onClick={handleLogout}
               aria-label="Log out"

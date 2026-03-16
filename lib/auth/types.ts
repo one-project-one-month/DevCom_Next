@@ -11,6 +11,7 @@ export type AuthUser = {
   avatarUrl?: string;
   profileBgColor?: string;
   provider: AuthProvider;
+  role?: string;
 };
 
 export type AuthSuccessResponse = {

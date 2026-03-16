@@ -4,6 +4,7 @@ import type { ApiErrorPayload, ApiRequestOptions } from "@/types/api";
 import { useAuthStore } from "@/store/auth-store";
 
 let redirectingForAuth = false;
+let refreshInFlight: Promise<string | null> | null = null;
 
 function isInvalidToken(payload?: ApiErrorPayload, status?: number) {
   if (status === 401) return true;
@@ -32,6 +33,37 @@ async function handleInvalidAuth(): Promise<void> {
   window.location.assign(`/login?next=${encodeURIComponent(next)}`);
 }
 
+async function refreshAccessToken(): Promise<string | null> {
+  if (refreshInFlight) {
+    return refreshInFlight;
+  }
+
+  refreshInFlight = (async () => {
+    try {
+      const response = await axios.post(
+        resolveUrl("/api/auth/refresh"),
+        {},
+        { withCredentials: true },
+      );
+      const accessToken = response.data?.accessToken ?? null;
+      const user = response.data?.user;
+      if (user) {
+        useAuthStore.getState().setUser(user);
+      }
+      if (accessToken) {
+        useAuthStore.getState().setToken(accessToken);
+      }
+      return accessToken;
+    } catch {
+      return null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
+
 export class ApiError extends Error {
   status: number;
   payload?: ApiErrorPayload;
@@ -49,9 +81,8 @@ function resolveUrl(path: string, baseUrl?: string) {
     baseUrl ??
     process.env.NEXT_PUBLIC_API_BASE_URL ??
     process.env.NEXT_PUBLIC_BACKEND_URL ??
-    "";
+    "http://localhost:4000";
 
-  if (!base) return path;
   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
 
@@ -85,7 +116,26 @@ export async function apiFetch<TResponse>(
     const status = axiosError.response?.status ?? 500;
     const payload = axiosError.response?.data;
     const message = payload?.message ?? axiosError.message ?? "Request failed";
-    if (isInvalidToken(payload, status)) {
+    if (isInvalidToken(payload, status) && path !== "/api/auth/refresh") {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        const retryHeaders =
+          refreshed && !headers?.Authorization
+            ? { ...headers, Authorization: `Bearer ${refreshed}` }
+            : headers;
+        const retry = await axios.request<TResponse>({
+          url: resolveUrl(path, baseUrl),
+          method,
+          headers: retryHeaders,
+          data: body,
+          signal,
+          params,
+          timeout,
+          withCredentials: true,
+        });
+        return retry.data;
+      }
+
       handleInvalidAuth();
     }
     throw new ApiError(message, status, payload);
