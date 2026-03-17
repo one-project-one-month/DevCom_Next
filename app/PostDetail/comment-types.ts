@@ -7,6 +7,18 @@ export type CommentItem = {
   createdAtLabel: string;
   body: string;
   isHidden?: boolean;
-  parentId?: string;
-  replies?: CommentItem[];
+  repliesCount: number;
+  replies?: ReplyItem[];
+};
+
+export type ReplyItem = {
+  id: string;
+  commentId: string;
+  authorId: string;
+  authorName: string;
+  authorHandle: string;
+  authorAvatarUrl?: string;
+  createdAtLabel: string;
+  body: string;
+  isHidden?: boolean;
 };

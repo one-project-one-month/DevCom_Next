@@ -5,16 +5,22 @@ export default function PostComments({
   comments,
   onReply,
   onDelete,
+  onDeleteReply,
+  onLoadReplies,
   currentUserId,
   currentUserRole,
   onHide,
+  onHideReply,
 }: {
   comments: CommentItem[];
   onReply?: (commentId: string, body: string) => void | Promise<void>;
   onDelete?: (commentId: string) => void | Promise<void>;
+  onDeleteReply?: (replyId: string) => void | Promise<void>;
+  onLoadReplies?: (commentId: string) => void | Promise<void>;
   currentUserId?: string;
   currentUserRole?: string;
   onHide?: (commentId: string) => void | Promise<void>;
+  onHideReply?: (replyId: string) => void | Promise<void>;
 }) {
   return (
     <div className="space-y-4">
@@ -24,9 +30,12 @@ export default function PostComments({
           comment={comment}
           onReply={onReply}
           onDelete={onDelete}
+          onDeleteReply={onDeleteReply}
+          onLoadReplies={onLoadReplies}
           currentUserId={currentUserId}
           currentUserRole={currentUserRole}
           onHide={onHide}
+          onHideReply={onHideReply}
         />
       ))}
     </div>

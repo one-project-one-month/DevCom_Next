@@ -11,6 +11,9 @@ export default function CommentSection({
   onSubmitReply,
   onDeleteComment,
   onHideComment,
+  onDeleteReply,
+  onLoadReplies,
+  onHideReply,
   isSubmitting,
   avatarUrl,
   currentUserId,
@@ -23,6 +26,9 @@ export default function CommentSection({
   onSubmitReply?: (commentId: string, body: string) => void | Promise<void>;
   onDeleteComment?: (commentId: string) => void | Promise<void>;
   onHideComment?: (commentId: string) => void | Promise<void>;
+  onDeleteReply?: (replyId: string) => void | Promise<void>;
+  onLoadReplies?: (commentId: string) => void | Promise<void>;
+  onHideReply?: (replyId: string) => void | Promise<void>;
   isSubmitting?: boolean;
   avatarUrl?: string;
   currentUserId?: string;
@@ -37,9 +43,12 @@ export default function CommentSection({
           comments={comments}
           onReply={onSubmitReply}
           onDelete={onDeleteComment}
+          onDeleteReply={onDeleteReply}
+          onLoadReplies={onLoadReplies}
           currentUserId={currentUserId}
           currentUserRole={currentUserRole}
           onHide={onHideComment}
+          onHideReply={onHideReply}
         />
       </div>
 

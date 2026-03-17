@@ -8,6 +8,12 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { PanelCard } from "@/components/dashboard/shared";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -156,7 +162,10 @@ export function SettingsPageView() {
     }
     return {
       isActive: true,
-      daysRemaining: Math.max(1, Math.ceil(remainingMs / (24 * 60 * 60 * 1000))),
+      daysRemaining: Math.max(
+        1,
+        Math.ceil(remainingMs / (24 * 60 * 60 * 1000)),
+      ),
     };
   }, [userQuery.data?.user?.lastProfileChangedAt]);
 
@@ -175,10 +184,13 @@ export function SettingsPageView() {
     mutationFn: async (file) => {
       const formData = new FormData();
       formData.append("file", file);
-      const upload = await apiFetch<{ imageUrl: string }>("/api/uploads/image", {
-        method: "POST",
-        body: formData,
-      });
+      const upload = await apiFetch<{ imageUrl: string }>(
+        "/api/uploads/image",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       return apiFetch<UserResponse>("/api/users/me", {
         method: "PATCH",
@@ -218,6 +230,8 @@ export function SettingsPageView() {
     }
     avatarMutation.mutate(file);
   }
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const updateMutation = useMutation<UserResponse, Error, EditableProfile>({
     mutationFn: async (payload) => {
@@ -262,10 +276,14 @@ export function SettingsPageView() {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await apiFetch<{ message: string }>("/api/users/me", { method: "DELETE" });
+      await apiFetch<{ message: string }>("/api/users/me", {
+        method: "DELETE",
+      });
     },
     onSuccess: async () => {
-      await apiFetch<{ message: string }>("/api/auth/logout", { method: "POST" });
+      await apiFetch<{ message: string }>("/api/auth/logout", {
+        method: "POST",
+      });
       useAuthStore.getState().clearUser();
       useAuthStore.getState().clearToken();
       toast({
@@ -374,7 +392,8 @@ export function SettingsPageView() {
           <div className="space-y-4 p-6">
             {profileInfoChanged && profileCooldownInfo.isActive ? (
               <p className="text-xs text-amber-600 dark:text-amber-300">
-                You can update profile info again in about {profileCooldownInfo.daysRemaining} days.
+                You can update profile info again in about{" "}
+                {profileCooldownInfo.daysRemaining} days.
               </p>
             ) : null}
             <div>
@@ -508,12 +527,7 @@ export function SettingsPageView() {
               </div>
               <Button
                 variant="destructive"
-                onClick={() => {
-                  if (!confirm("This will permanently delete your account. Continue?")) {
-                    return;
-                  }
-                  deleteMutation.mutate();
-                }}
+                onClick={() => setIsDeleteDialogOpen(true)}
                 disabled={deleteMutation.isPending}
               >
                 {deleteMutation.isPending ? "Deleting..." : "Delete Account"}
@@ -521,6 +535,43 @@ export function SettingsPageView() {
             </div>
           </div>
         </PanelCard>
+
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="max-w-md bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+            <div className="space-y-5">
+              <div className="flex items-start gap-3">
+                <div className="space-y-3">
+                  <DialogTitle className="text-xl font-semibold">
+                    Delete account
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-slate-600 dark:text-slate-300">
+                    This will permanently remove your account and all posts.
+                    This action cannot be undone.
+                  </DialogDescription>
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                  deleteMutation.mutate();
+                }}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Confirm Delete"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardShell>
   );

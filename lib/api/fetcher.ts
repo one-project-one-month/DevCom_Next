@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/auth-store";
 
 let redirectingForAuth = false;
 let refreshInFlight: Promise<string | null> | null = null;
+let refreshToastActive = false;
 
 function isInvalidToken(payload?: ApiErrorPayload, status?: number) {
   if (status === 401) return true;
@@ -40,6 +41,14 @@ async function refreshAccessToken(): Promise<string | null> {
 
   refreshInFlight = (async () => {
     try {
+      if (!refreshToastActive && typeof window !== "undefined") {
+        refreshToastActive = true;
+        const { toast } = await import("@/hooks/use-toast");
+        toast({
+          title: "Session refreshed",
+          description: "Access token expired. Refreshing session...",
+        });
+      }
       const response = await axios.post(
         resolveUrl("/api/auth/refresh"),
         {},
@@ -57,6 +66,7 @@ async function refreshAccessToken(): Promise<string | null> {
     } catch {
       return null;
     } finally {
+      refreshToastActive = false;
       refreshInFlight = null;
     }
   })();

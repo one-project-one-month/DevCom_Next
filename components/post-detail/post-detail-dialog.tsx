@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import CommentSection from "@/app/PostDetail/CommentSection";
 import CommentEditorSection from "@/app/PostDetail/CommentEditorSection";
 import { Field } from "@/components/ui/field";
 import PostContent from "@/app/PostDetail/PostContent";
-import type { CommentDetail, PostDetail } from "@/app/PostDetail/_types";
+import type { CommentDetail, PostDetail, ReplyDetail } from "@/app/PostDetail/_types";
 import type { CommentItem } from "@/app/PostDetail/comment-types";
 import type { FeedPost } from "@/components/dashboard/types";
 import { PanelCard } from "@/components/dashboard/shared";
@@ -77,21 +78,22 @@ function mapCommentToItem(comment: CommentDetail): CommentItem {
     createdAtLabel: formatRelativeTime(comment.createdAt),
     body: comment.body,
     isHidden: comment.status === "hidden",
-    parentId: comment.parentId,
-    replies: comment.replies?.map(mapCommentToItem) ?? [],
+    repliesCount: comment.repliesCount ?? 0,
   };
 }
 
-function markCommentHidden(comments: CommentDetail[], commentId: string): CommentDetail[] {
-  return comments.map((comment) => {
-    if (comment.id === commentId) {
-      return { ...comment, status: "hidden" };
-    }
-    if (comment.replies && comment.replies.length > 0) {
-      return { ...comment, replies: markCommentHidden(comment.replies, commentId) };
-    }
-    return comment;
-  });
+function mapReplyToItem(reply: ReplyDetail) {
+  return {
+    id: reply.id,
+    commentId: reply.comment,
+    authorId: reply.author.id,
+    authorName: reply.author.name,
+    authorHandle: reply.author.handle,
+    authorAvatarUrl: reply.author.avatarUrl,
+    createdAtLabel: formatRelativeTime(reply.createdAt),
+    body: reply.body,
+    isHidden: reply.status === "hidden",
+  };
 }
 
 function initialsFromName(name: string) {
@@ -129,7 +131,7 @@ export function PostDetailDialog({
   const createComment = useMutation<
     { comment: CommentDetail },
     Error,
-    { body: string; parentId?: string }
+    { body: string }
   >({
     mutationFn: (payload) =>
       apiFetch<{ comment: CommentDetail }>(`/api/posts/${postId}/comments`, {
@@ -147,6 +149,47 @@ export function PostDetailDialog({
         },
       );
 
+      commentsQuery.refetch();
+      postQuery.refetch();
+    },
+  });
+
+  const [repliesByCommentId, setRepliesByCommentId] = useState<
+    Record<string, ReturnType<typeof mapReplyToItem>[]>
+  >({});
+
+  const loadReplies = async (commentId: string) => {
+    if (repliesByCommentId[commentId]) return;
+    const result = await apiFetch<{ replies: ReplyDetail[] }>(
+      `/api/comments/${commentId}/replies`,
+    );
+    setRepliesByCommentId((prev) => ({
+      ...prev,
+      [commentId]: result.replies.map(mapReplyToItem),
+    }));
+  };
+
+  const createReply = useMutation<
+    { reply: ReplyDetail },
+    Error,
+    { commentId: string; body: string }
+  >({
+    mutationFn: (payload) =>
+      apiFetch<{ reply: ReplyDetail }>(
+        `/api/comments/${payload.commentId}/replies`,
+        {
+          method: "POST",
+          body: { body: payload.body },
+        },
+      ),
+    onSuccess: (data, variables) => {
+      setRepliesByCommentId((prev) => ({
+        ...prev,
+        [variables.commentId]: [
+          ...(prev[variables.commentId] ?? []),
+          mapReplyToItem(data.reply),
+        ],
+      }));
       commentsQuery.refetch();
       postQuery.refetch();
     },
@@ -173,28 +216,57 @@ export function PostDetailDialog({
     },
   });
 
+  const deleteReply = useMutation<void, Error, string>({
+    mutationFn: (replyId) =>
+      apiFetch<void>(`/api/replies/${replyId}`, { method: "DELETE" }),
+    onSuccess: () => {
+      commentsQuery.refetch();
+      postQuery.refetch();
+    },
+  });
+
   const hideComment = useMutation<{ comment: CommentDetail }, Error, string>({
     mutationFn: (commentId) =>
       apiFetch<{ comment: CommentDetail }>(`/api/comments/${commentId}/status`, {
         method: "PATCH",
         body: { status: "hidden" },
       }),
-    onSuccess: (_, commentId) => {
-      queryClient.setQueryData<{ comments: CommentDetail[] }>(
-        ["post", postId, "comments"],
-        (old) => {
-          if (!old?.comments) return old;
-          return { comments: markCommentHidden(old.comments, commentId) };
-        },
-      );
+    onSuccess: () => {
       commentsQuery.refetch();
+    },
+  });
+
+  const hideReply = useMutation<{ reply: ReplyDetail }, Error, string>({
+    mutationFn: (replyId) =>
+      apiFetch<{ reply: ReplyDetail }>(`/api/replies/${replyId}/status`, {
+        method: "PATCH",
+        body: { status: "hidden" },
+      }),
+    onSuccess: (data) => {
+      setRepliesByCommentId((prev) => {
+        const commentId = data.reply.comment;
+        const replies = prev[commentId] ?? [];
+        return {
+          ...prev,
+          [commentId]: replies.map((reply) =>
+            reply.id === data.reply.id ? mapReplyToItem(data.reply) : reply,
+          ),
+        };
+      });
     },
   });
 
   const post = postQuery.data?.post
     ? mapPostDetailToFeed(postQuery.data.post)
     : null;
-  const comments = (commentsQuery.data?.comments ?? []).map(mapCommentToItem);
+  const comments =
+    (commentsQuery.data?.comments ?? []).map((comment) => {
+      const mapped = mapCommentToItem(comment);
+      return {
+        ...mapped,
+        replies: repliesByCommentId[mapped.id] ?? [],
+      };
+    }) ?? [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -266,14 +338,17 @@ export function PostDetailDialog({
                   createComment.mutate({ body: value })
                 }
                 onSubmitReply={(commentId, body) =>
-                  createComment.mutate({ body, parentId: commentId })
+                  createReply.mutate({ commentId, body })
                 }
                 onDeleteComment={(commentId) => deleteComment.mutate(commentId)}
+                onDeleteReply={(replyId) => deleteReply.mutate(replyId)}
+                onLoadReplies={loadReplies}
                 isSubmitting={createComment.isPending}
                 avatarUrl={user?.avatarUrl}
                 currentUserId={user?.id}
                 currentUserRole={user?.role}
                 onHideComment={(commentId) => hideComment.mutate(commentId)}
+                onHideReply={(replyId) => hideReply.mutate(replyId)}
                 fixedEditor
                 showEditor={false}
               />

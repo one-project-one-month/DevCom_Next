@@ -26,10 +26,20 @@ export type CommentDetail = {
   id: string;
   post: string;
   body: string;
-  parentId?: string;
+  status?: "visible" | "hidden";
+  repliesCount: number;
+  createdAt: string;
+  updatedAt: string;
+  author: PostDetailAuthor;
+};
+
+export type ReplyDetail = {
+  id: string;
+  comment: string;
+  post: string;
+  body: string;
   status?: "visible" | "hidden";
   createdAt: string;
   updatedAt: string;
   author: PostDetailAuthor;
-  replies?: CommentDetail[];
 };
