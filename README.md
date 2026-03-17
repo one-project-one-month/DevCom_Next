@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevLoop
+
+DevLoop is a social developer community app built with Next.js App Router. It includes authentication, a feed with search, post creation, post details with comments, and an admin dashboard.
+
+## What You Can Do
+
+- Sign in with email or OAuth
+- Search the feed by title, tags, author name, and author handle
+- Create posts with tags and optional image upload
+- Edit your own posts
+- View post details in a dialog with comments
+- Add comments and replies
+- Report or hide comments (moderation flow)
+- Manage profile info and avatar
+- Use the admin dashboard for overview, users, moderation, and settings
+
+## Routes
+
+Public / App
+- `/` Feed with search
+- `/create-post` Post editor (create or edit)
+- `/profile` Your profile view
+- `/profile/[handle]` Public profile view
+- `/settings` User settings
+
+Auth
+- `/login` Login page
+- `/callback` OAuth callback page
+
+Admin
+- `/admin` Redirects to overview
+- `/admin/overview` Admin summary dashboard
+- `/admin/users` User management
+- `/admin/moderation` Moderation queue
+- `/admin/settings` Admin settings
+- `/admin/not-authorized` Access denied
+
+## API Usage (Frontend)
+
+The UI calls these backend endpoints:
+
+Auth
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `GET /api/auth/:provider/login`
+
+Posts
+- `GET /api/posts`
+- `GET /api/posts/:id`
+- `POST /api/posts`
+- `PATCH /api/posts/:id`
+- `DELETE /api/posts/:id`
+
+Comments
+- `GET /api/posts/:id/comments`
+- `POST /api/posts/:id/comments`
+- `DELETE /api/comments/:id`
+- `PATCH /api/comments/:id/status`
+
+Reactions + Reports
+- `POST /api/reactions`
+- `POST /api/reports`
+
+Admin
+- `GET /api/admin/overview`
+- `GET /api/admin/users`
+- `GET /api/admin/posts/reported`
+- `GET /api/admin/reports`
+- `PATCH /api/admin/users/:id/role`
+- `PATCH /api/admin/users/:id/status`
+- `PATCH /api/admin/posts/:id/status`
+- `DELETE /api/admin/posts/:id`
+- `PATCH /api/reports/:id`
+
+Uploads
+- `POST /api/uploads/image`
+
+## Data Flow
+
+- React Query handles fetching and caching.
+- The auth token is stored in Zustand and injected as a Bearer token by `lib/api/fetcher.ts`.
+- UI updates optimistically for moderation actions in the post detail dialog.
+
+## Tech Stack
+
+- Next.js App Router
+- React Query
+- Zustand
+- Tailwind CSS
+- shadcn/ui components
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the app:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+Create a `.env` file and set:
 
-To learn more about Next.js, take a look at the following resources:
+```
+NEXT_PUBLIC_API_BASE_URL=your_api_url
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev     # start dev server
+npm run build   # production build
+npm run start   # start production server
+npm run lint    # lint
+```
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/               # Next.js routes
+components/        # UI + feature components
+hooks/             # React hooks
+lib/               # API + helpers
+store/             # Zustand stores
+```
