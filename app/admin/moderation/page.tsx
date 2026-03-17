@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle, Eye, Flag, ShieldAlert, Trash2 } from "lucide-react";
+import { CheckCircle, Eye, ShieldAlert, Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { Post, Report, ReportStatus, ReportType } from "../_data/admin";
@@ -77,11 +77,11 @@ export default function ModerationPage() {
     },
   });
 
-  const posts = postsQuery.data?.data ?? [];
-  const reports = reportsQuery.data?.data ?? [];
   const totalPages = postsQuery.data?.totalPages ?? 1;
 
   const rows: ModerationRow[] = useMemo(() => {
+    const posts = postsQuery.data?.data ?? [];
+    const reports = reportsQuery.data?.data ?? [];
     const reportMap = new Map<string, Report[]>();
     reports.forEach((report) => {
       const list = reportMap.get(report.targetId) ?? [];
@@ -109,7 +109,7 @@ export default function ModerationPage() {
         reporterName: primary?.reporterName,
       };
     });
-  }, [posts, reports]);
+  }, [postsQuery.data?.data, reportsQuery.data?.data]);
 
   const columns: Column<ModerationRow>[] = [
     {
@@ -256,7 +256,7 @@ export default function ModerationPage() {
       onPageChange={setPage}
       summaryText={`Moderation queue`}
     >
-      <DataTable<ModerationItem>
+      <DataTable<ModerationRow>
         data={rows}
         columns={columns}
         actions={actions}

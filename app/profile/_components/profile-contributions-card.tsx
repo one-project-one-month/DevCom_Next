@@ -48,7 +48,6 @@ export function ProfileContributionsCard({ contributions }: { contributions: Fee
               key={post.id}
               post={post}
               showAuthor={false}
-              showCommentBox={false}
             />
           ))}
         </div>

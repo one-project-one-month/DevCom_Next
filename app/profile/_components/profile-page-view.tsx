@@ -128,7 +128,7 @@ export function ProfilePageView() {
       apiFetch<FeedResponse>("/api/posts", {
         params: {
           limit: 6,
-          cursor: pageParam ?? undefined,
+          cursor: typeof pageParam === "string" ? pageParam : undefined,
           author: "me",
         },
       }),

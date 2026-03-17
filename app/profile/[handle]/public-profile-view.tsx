@@ -130,7 +130,7 @@ export function PublicProfileView({ handle }: { handle?: string }) {
       apiFetch<FeedResponse>("/api/posts", {
         params: {
           limit: 6,
-          cursor: pageParam ?? undefined,
+          cursor: typeof pageParam === "string" ? pageParam : undefined,
           author: isOwnProfile ? "me" : userQuery.data?.user?.id,
         },
       }),

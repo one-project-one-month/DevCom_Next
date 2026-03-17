@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
@@ -47,10 +48,12 @@ export function DashboardShell({
   return (
     <main className="min-h-screen bg-[#f3f5f9] text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto w-full">
-        <TopNavbar
-          onToggleSidebar={toggleMobileSidebar}
-          isSidebarOpen={isMobileSidebarOpen}
-        />
+        <Suspense fallback={null}>
+          <TopNavbar
+            onToggleSidebar={toggleMobileSidebar}
+            isSidebarOpen={isMobileSidebarOpen}
+          />
+        </Suspense>
         <div className="h-18 sm:h-20" />
         <section
           className={cn(

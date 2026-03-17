@@ -46,6 +46,7 @@ const PaginationLink = ({
   ...props
 }: PaginationLinkProps) => (
   <Button
+    type="button"
     variant={isActive ? "default" : "outline"}
     size="icon"
     className={cn("h-8 w-8", className)}
@@ -58,7 +59,12 @@ const PaginationPrevious = ({
   className,
   ...props
 }: React.ComponentProps<"button">) => (
-  <PaginationLink aria-label="Go to previous page" className={className} {...props}>
+  <PaginationLink
+    type="button"
+    aria-label="Go to previous page"
+    className={className}
+    {...props}
+  >
     <ChevronLeft className="h-4 w-4" />
   </PaginationLink>
 );
@@ -68,7 +74,12 @@ const PaginationNext = ({
   className,
   ...props
 }: React.ComponentProps<"button">) => (
-  <PaginationLink aria-label="Go to next page" className={className} {...props}>
+  <PaginationLink
+    type="button"
+    aria-label="Go to next page"
+    className={className}
+    {...props}
+  >
     <ChevronRight className="h-4 w-4" />
   </PaginationLink>
 );

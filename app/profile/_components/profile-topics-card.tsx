@@ -1,5 +1,9 @@
-import type { TopicStat } from "@/app/profile/_types";
 import { PanelCard } from "@/components/dashboard/shared";
+
+type TopicStat = {
+  topic: string;
+  count: number;
+};
 
 export function ProfileTopicsCard({ topics }: { topics: TopicStat[] }) {
   return (
