@@ -8,10 +8,14 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
+  handle?: string;
   avatarUrl?: string;
   profileBgColor?: string;
   provider: AuthProvider;
   role?: string;
+  location?: string;
+  bio?: string;
+  expertise?: string[];
 };
 
 export type AuthSuccessResponse = {

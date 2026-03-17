@@ -7,7 +7,6 @@ import { X } from "lucide-react";
 import { LeftSidebar } from "@/components/dashboard/left-sidebar";
 import { RightSidebar } from "@/components/dashboard/right-sidebar";
 import { TopNavbar } from "@/components/dashboard/top-navbar";
-import { useMeQuery } from "@/hooks/use-auth";
 import { readUserCookie } from "@/lib/auth/user-cookie";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -33,7 +32,6 @@ export function DashboardShell({
   const renderedLeftSidebar = leftSidebar ?? <LeftSidebar />;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const toggleMobileSidebar = () => setIsMobileSidebarOpen((prev) => !prev);
-  const meQuery = useMeQuery(true);
   const setUser = useAuthStore((state) => state.setUser);
   const user = useAuthStore((state) => state.user);
 

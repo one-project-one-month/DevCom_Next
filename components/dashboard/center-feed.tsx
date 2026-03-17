@@ -200,11 +200,12 @@ export function CenterFeed() {
         </PanelCard>
       ) : null}
 
-      {filteredPosts.map((post) => (
+      {filteredPosts.map((post, index) => (
         <FeedPostCard
           key={post.id}
           post={post}
           highlightQuery={searchQuery}
+          eagerImage={index === 0}
         />
       ))}
 

@@ -27,6 +27,7 @@ export type CommentDetail = {
   post: string;
   body: string;
   parentId?: string;
+  status?: "visible" | "hidden";
   createdAt: string;
   updatedAt: string;
   author: PostDetailAuthor;

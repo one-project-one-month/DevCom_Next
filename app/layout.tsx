@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { QueryProvider } from "@/providers/query-provider";
+import { AuthBootstrap } from "@/providers/auth-bootstrap";
 
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,6 +48,7 @@ export default function RootLayout({
         />
         <QueryProvider>
           <TooltipProvider>
+            <AuthBootstrap />
             {children}
             <Toaster />
           </TooltipProvider>

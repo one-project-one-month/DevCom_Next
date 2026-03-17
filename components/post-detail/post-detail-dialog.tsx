@@ -12,7 +12,7 @@ import type { CommentItem } from "@/app/PostDetail/comment-types";
 import type { FeedPost } from "@/components/dashboard/types";
 import { PanelCard } from "@/components/dashboard/shared";
 import { apiFetch } from "@/lib/api/fetcher";
-import { useMeQuery } from "@/hooks/use-auth";
+import { useAuthStore } from "@/store/auth-store";
 import {
   Dialog,
   DialogClose,
@@ -70,14 +70,28 @@ function mapPostDetailToFeed(post: PostDetail): FeedPost {
 function mapCommentToItem(comment: CommentDetail): CommentItem {
   return {
     id: comment.id,
+    authorId: comment.author.id,
     authorName: comment.author.name,
     authorHandle: comment.author.handle,
     authorAvatarUrl: comment.author.avatarUrl,
     createdAtLabel: formatRelativeTime(comment.createdAt),
     body: comment.body,
+    isHidden: comment.status === "hidden",
     parentId: comment.parentId,
     replies: comment.replies?.map(mapCommentToItem) ?? [],
   };
+}
+
+function markCommentHidden(comments: CommentDetail[], commentId: string): CommentDetail[] {
+  return comments.map((comment) => {
+    if (comment.id === commentId) {
+      return { ...comment, status: "hidden" };
+    }
+    if (comment.replies && comment.replies.length > 0) {
+      return { ...comment, replies: markCommentHidden(comment.replies, commentId) };
+    }
+    return comment;
+  });
 }
 
 function initialsFromName(name: string) {
@@ -94,7 +108,7 @@ export function PostDetailDialog({
   open,
   onOpenChange,
 }: PostDetailDialogProps) {
-  const { data: meData } = useMeQuery();
+  const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
 
   const postQuery = useQuery<{ post: PostDetail }>({
@@ -135,6 +149,45 @@ export function PostDetailDialog({
 
       commentsQuery.refetch();
       postQuery.refetch();
+    },
+  });
+
+  const deleteComment = useMutation<void, Error, string>({
+    mutationFn: (commentId) =>
+      apiFetch<void>(`/api/comments/${commentId}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.setQueryData<{ post: PostDetail }>(
+        ["post", postId],
+        (old) => {
+          if (!old?.post) return old;
+          return {
+            post: {
+              ...old.post,
+              commentsCount: Math.max(0, old.post.commentsCount - 1),
+            },
+          };
+        },
+      );
+      commentsQuery.refetch();
+      postQuery.refetch();
+    },
+  });
+
+  const hideComment = useMutation<{ comment: CommentDetail }, Error, string>({
+    mutationFn: (commentId) =>
+      apiFetch<{ comment: CommentDetail }>(`/api/comments/${commentId}/status`, {
+        method: "PATCH",
+        body: { status: "hidden" },
+      }),
+    onSuccess: (_, commentId) => {
+      queryClient.setQueryData<{ comments: CommentDetail[] }>(
+        ["post", postId, "comments"],
+        (old) => {
+          if (!old?.comments) return old;
+          return { comments: markCommentHidden(old.comments, commentId) };
+        },
+      );
+      commentsQuery.refetch();
     },
   });
 
@@ -195,13 +248,15 @@ export function PostDetailDialog({
             <div className="space-y-5">
               {post.imageUrl ? (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
-                  <Image
-                    src={post.imageUrl}
-                    alt={`${post.title} visual`}
-                    width={1200}
-                    height={1200}
-                    className="max-h-115 w-full object-contain"
-                  />
+                  <div className="max-h-150 w-full bg-slate-900/5 dark:bg-slate-950/40 sm:aspect-video">
+                    <Image
+                      src={post.imageUrl}
+                      alt={`${post.title} visual`}
+                      width={3000}
+                      height={3000}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
               ) : null}
               <PostContent post={post} />
@@ -213,8 +268,12 @@ export function PostDetailDialog({
                 onSubmitReply={(commentId, body) =>
                   createComment.mutate({ body, parentId: commentId })
                 }
+                onDeleteComment={(commentId) => deleteComment.mutate(commentId)}
                 isSubmitting={createComment.isPending}
-                avatarUrl={meData?.user?.avatarUrl}
+                avatarUrl={user?.avatarUrl}
+                currentUserId={user?.id}
+                currentUserRole={user?.role}
+                onHideComment={(commentId) => hideComment.mutate(commentId)}
                 fixedEditor
                 showEditor={false}
               />
@@ -224,11 +283,11 @@ export function PostDetailDialog({
 
         <div className="border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-700 dark:bg-slate-900/90">
           <div className="flex justify-center items-center gap-2">
-            {meData?.user?.avatarUrl ? (
+            {user?.avatarUrl ? (
               <Image
                 width={500}
                 height={500}
-                src={meData.user.avatarUrl}
+                src={user.avatarUrl}
                 alt="User Avatar"
                 className="h-10 w-10 rounded-full bg-slate-200 object-cover dark:bg-slate-700"
               />

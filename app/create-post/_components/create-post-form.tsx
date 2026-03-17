@@ -56,7 +56,6 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
   const [form, setForm] = useState<CreatePostFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<CreatePostValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string>("");
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
   const previewImageUrl = useMemo(() => {
@@ -92,14 +91,8 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
 
   useEffect(() => {
     if (!editId) return;
-    if (editQuery.isLoading) {
-      setStatusMessage("Loading post...");
-      return;
-    }
-    if (editQuery.isError) {
-      setStatusMessage("Unable to load post for editing.");
-      return;
-    }
+    if (editQuery.isLoading) return;
+    if (editQuery.isError) return;
     if (editQuery.data?.post) {
       const post = editQuery.data.post;
       setForm((prev) => ({
@@ -110,7 +103,6 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
         image: null,
       }));
       setExistingImageUrl(post.imageUrl ?? null);
-      setStatusMessage("");
     }
   }, [editId, editQuery.data?.post, editQuery.isError, editQuery.isLoading]);
   useEffect(() => {
@@ -125,12 +117,10 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
-      setStatusMessage("Please fix validation errors before continuing.");
       return;
     }
 
     setIsSubmitting(true);
-    setStatusMessage("");
 
     try {
       let imageUrl: string | undefined;
@@ -174,14 +164,8 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
 
       await queryClient.invalidateQueries({ queryKey: ["feed"] });
       router.push("/");
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : editId
-            ? "Unable to update post."
-            : "Unable to publish post.";
-      setStatusMessage(message);
+    } catch {
+      return;
     } finally {
       setIsSubmitting(false);
     }

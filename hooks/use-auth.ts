@@ -30,6 +30,9 @@ export function useMeQuery(enabled = true) {
     queryFn: getAuthMe,
     enabled,
     retry: false,
+    staleTime: 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   useEffect(() => {
     if (query.data?.user) {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Trash2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import type { CommentItem } from "./comment-types";
 import CommentEditorSection from "./CommentEditorSection";
@@ -10,11 +10,27 @@ import CommentEditorSection from "./CommentEditorSection";
 type CommentCardProps = {
   comment: CommentItem;
   onReply?: (commentId: string, body: string) => void | Promise<void>;
+  onDelete?: (commentId: string) => void | Promise<void>;
+  currentUserId?: string;
+  currentUserRole?: string;
+  onHide?: (commentId: string) => void | Promise<void>;
 };
 
-export default function CommentCard({ comment, onReply }: CommentCardProps) {
+export default function CommentCard({
+  comment,
+  onReply,
+  onDelete,
+  currentUserId,
+  currentUserRole,
+  onHide,
+}: CommentCardProps) {
   const [isReplying, setIsReplying] = useState(false);
-  const canReply = !comment.parentId;
+  const canReply = !comment.parentId && !comment.isHidden;
+  const canDelete = Boolean(currentUserId && comment.authorId === currentUserId);
+  const canModerate =
+    Boolean(currentUserRole) &&
+    ["admin", "moderator"].includes(currentUserRole ?? "") &&
+    !comment.isHidden;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_4px_14px_rgba(15,23,42,0.04)] dark:border-slate-700 dark:bg-slate-900">
@@ -42,12 +58,18 @@ export default function CommentCard({ comment, onReply }: CommentCardProps) {
             <span className="text-xs text-slate-500">{comment.createdAtLabel}</span>
           </div>
 
-          <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-300">
-            {comment.body}
-          </p>
+          {comment.isHidden ? (
+            <p className="mt-2 text-sm italic text-amber-700 dark:text-amber-300">
+              This comment was hidden for violating community rules.
+            </p>
+          ) : (
+            <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-300">
+              {comment.body}
+            </p>
+          )}
 
-          {canReply ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {canReply ? (
               <button
                 type="button"
                 onClick={() => setIsReplying((current) => !current)}
@@ -56,8 +78,27 @@ export default function CommentCard({ comment, onReply }: CommentCardProps) {
                 <MessageSquare className="h-4 w-4" />
                 Reply
               </button>
-            </div>
-          ) : null}
+            ) : null}
+            {canDelete ? (
+              <button
+                type="button"
+                onClick={() => onDelete?.(comment.id)}
+                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
+            ) : null}
+            {canModerate ? (
+              <button
+                type="button"
+                onClick={() => onHide?.(comment.id)}
+                className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium text-amber-700 transition hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10"
+              >
+                Hide
+              </button>
+            ) : null}
+          </div>
 
           {canReply && isReplying ? (
             <div className="mt-3">
@@ -75,7 +116,15 @@ export default function CommentCard({ comment, onReply }: CommentCardProps) {
           {comment.replies && comment.replies.length > 0 ? (
             <div className="mt-4 space-y-3 border-l border-slate-200 pl-4 dark:border-slate-700">
               {comment.replies.map((reply) => (
-                <CommentCard key={reply.id} comment={reply} onReply={onReply} />
+                <CommentCard
+                  key={reply.id}
+                  comment={reply}
+                  onReply={onReply}
+                  onDelete={onDelete}
+                  currentUserId={currentUserId}
+                  currentUserRole={currentUserRole}
+                  onHide={onHide}
+                />
               ))}
             </div>
           ) : null}

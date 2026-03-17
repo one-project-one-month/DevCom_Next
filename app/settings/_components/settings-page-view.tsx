@@ -149,6 +149,7 @@ export function SettingsPageView() {
       return { isActive: false, daysRemaining: 0 };
     }
     const endTime = lastTime + cooldownMs;
+    // eslint-disable-next-line react-hooks/purity
     const remainingMs = endTime - Date.now();
     if (remainingMs <= 0) {
       return { isActive: false, daysRemaining: 0 };
@@ -253,6 +254,30 @@ export function SettingsPageView() {
     onError: (error) => {
       toast({
         title: "Update failed",
+        description: error.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await apiFetch<{ message: string }>("/api/users/me", { method: "DELETE" });
+    },
+    onSuccess: async () => {
+      await apiFetch<{ message: string }>("/api/auth/logout", { method: "POST" });
+      useAuthStore.getState().clearUser();
+      useAuthStore.getState().clearToken();
+      toast({
+        title: "Account deleted",
+        description: "Your account has been removed.",
+        variant: "success",
+      });
+      window.location.assign("/login");
+    },
+    onError: (error) => {
+      toast({
+        title: "Delete failed",
         description: error.message ?? "Please try again.",
         variant: "destructive",
       });
@@ -469,6 +494,30 @@ export function SettingsPageView() {
 
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               {hasChanges ? "Unsaved changes" : "All changes saved"}
+            </div>
+          </div>
+          <div className="border-t border-slate-200/80 bg-slate-50/70 p-6 dark:border-slate-800/80 dark:bg-slate-900/40">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Delete account
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Permanently remove your account and posts.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (!confirm("This will permanently delete your account. Continue?")) {
+                    return;
+                  }
+                  deleteMutation.mutate();
+                }}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete Account"}
+              </Button>
             </div>
           </div>
         </PanelCard>

@@ -12,8 +12,8 @@ export const fetchUsers = (page: number, limit: number, search: string) =>
     params: { page, limit, search: search || undefined },
   });
 
-export const fetchPosts = (page: number, limit: number, search: string) =>
-  apiFetch<PaginatedResponse<Post>>("/api/admin/posts", {
+export const fetchReportedPosts = (page: number, limit: number, search: string) =>
+  apiFetch<PaginatedResponse<Post>>("/api/admin/posts/reported", {
     params: { page, limit, search: search || undefined },
   });
 
@@ -30,3 +30,26 @@ export const updateReportStatus = (id: string, status: "OPEN" | "IN_REVIEW" | "R
 
 export const fetchOverview = () =>
   apiFetch<OverviewResponse>("/api/admin/overview");
+
+export const updateUserRole = (id: string, role: "MEMBER" | "MODERATOR" | "ADMIN") =>
+  apiFetch<{ user: User }>(`/api/admin/users/${id}/role`, {
+    method: "PATCH",
+    body: { role: role.toLowerCase() },
+  });
+
+export const updateUserStatus = (id: string, status: "ACTIVE" | "SUSPENDED") =>
+  apiFetch<{ user: User }>(`/api/admin/users/${id}/status`, {
+    method: "PATCH",
+    body: { status },
+  });
+
+export const updatePostStatus = (id: string, status: "PUBLISHED" | "FLAGGED") =>
+  apiFetch<{ post: Post }>(`/api/admin/posts/${id}/status`, {
+    method: "PATCH",
+    body: { status: status.toLowerCase() },
+  });
+
+export const deletePost = (id: string) =>
+  apiFetch<{ message: string }>(`/api/admin/posts/${id}`, {
+    method: "DELETE",
+  });

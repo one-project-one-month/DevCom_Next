@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { MoreHorizontal, ShieldCheck, UserX } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { User } from "../_data/admin";
-import { fetchUsers } from "../_data/admin-service";
+import { fetchUsers, updateUserRole, updateUserStatus } from "../_data/admin-service";
 
 import { DataTable, Column, Action } from "../_components/data-table";
 import ListPageShell from "../_components/list-page-shell";
@@ -16,6 +16,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 7;
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users", page, search],
@@ -95,21 +96,44 @@ export default function UsersPage() {
     },
   ];
 
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: "MEMBER" | "MODERATOR" | "ADMIN" }) =>
+      updateUserRole(id, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "ACTIVE" | "SUSPENDED" }) =>
+      updateUserStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+  });
+
   const actions: Action<User>[] = [
     {
       label: "View Profile",
       icon: <MoreHorizontal className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: (row) => window.open(`/profile/${row.handle.replace(/^@/, "")}`, "_blank"),
     },
     {
       label: "Promote to Admin",
       icon: <ShieldCheck className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: (row) => {
+        if (row.role === "ADMIN") return;
+        roleMutation.mutate({ id: row.id, role: "ADMIN" });
+      },
     },
     {
       label: "Suspend User",
       icon: <UserX className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: (row) => {
+        if (row.role === "ADMIN") return;
+        const nextStatus = row.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+        statusMutation.mutate({ id: row.id, status: nextStatus });
+      },
     },
   ];
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { ProfileLayoutView } from "@/app/profile/_components/profile-layout-view";
@@ -138,7 +137,7 @@ export function ProfilePageView() {
     initialPageParam: undefined,
   });
 
-  const profileData = useMemo<ProfilePageData | null>(() => {
+  const profileData: ProfilePageData | null = (() => {
     if (userQuery.data?.user) {
       const posts = postsQuery.data?.pages.flatMap((page) => page.posts) ?? [];
       return {
@@ -167,7 +166,7 @@ export function ProfilePageView() {
     }
 
     return null;
-  }, [meData?.user, postsQuery.data?.pages, postsQuery.hasNextPage, userQuery.data?.user]);
+  })();
 
   if (!profileData) {
     return (

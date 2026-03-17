@@ -9,23 +9,38 @@ export default function CommentSection({
   comments,
   onSubmitComment,
   onSubmitReply,
+  onDeleteComment,
+  onHideComment,
   isSubmitting,
   avatarUrl,
+  currentUserId,
+  currentUserRole,
   fixedEditor = false,
   showEditor = true,
 }: {
   comments: CommentItem[];
   onSubmitComment: (value: string) => void | Promise<void>;
   onSubmitReply?: (commentId: string, body: string) => void | Promise<void>;
+  onDeleteComment?: (commentId: string) => void | Promise<void>;
+  onHideComment?: (commentId: string) => void | Promise<void>;
   isSubmitting?: boolean;
   avatarUrl?: string;
+  currentUserId?: string;
+  currentUserRole?: string;
   fixedEditor?: boolean;
   showEditor?: boolean;
 }) {
   return (
     <div className="relative">
       <div>
-        <PostComments comments={comments} onReply={onSubmitReply} />
+        <PostComments
+          comments={comments}
+          onReply={onSubmitReply}
+          onDelete={onDeleteComment}
+          currentUserId={currentUserId}
+          currentUserRole={currentUserRole}
+          onHide={onHideComment}
+        />
       </div>
 
       {showEditor ? (

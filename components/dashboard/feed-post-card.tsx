@@ -31,6 +31,7 @@ type FeedPostCardProps = {
   highlightQuery?: string;
   onDelete?: (postId: string) => void;
   onStatusChange?: (postId: string, status: "published" | "private") => void;
+  eagerImage?: boolean;
 };
 
 function profileHrefFromHandle(handle: string, isOwnPost?: boolean) {
@@ -94,6 +95,7 @@ export function FeedPostCard({
   highlightQuery,
   onDelete,
   onStatusChange,
+  eagerImage = false,
 }: FeedPostCardProps) {
   const [helpfulCount, setHelpfulCount] = useState(post.helpful);
   const [isHelpful, setIsHelpful] = useState(post.hasHelpful ?? false);
@@ -288,14 +290,18 @@ export function FeedPostCard({
       </div>
 
       {post.imageUrl ? (
-        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50  dark:border-slate-700 dark:bg-slate-800">
-          <Image
-            src={post.imageUrl}
-            alt={`${post.title} visual`}
-            width={1200}
-            height={1200}
-            className="max-h-115 w-full rounded-xl object-contain opacity-90"
-          />
+        <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+          <div className="max-h-150 w-full rounded-xl bg-slate-900/5 dark:bg-slate-950/40 sm:aspect-video">
+            <Image
+              src={post.imageUrl}
+              alt={`${post.title} visual`}
+              width={3000}
+              height={3000}
+              loading={eagerImage ? "eager" : "lazy"}
+              priority={eagerImage}
+              className="h-full w-full rounded-xl object-cover"
+            />
+          </div>
         </div>
       ) : null}
 
