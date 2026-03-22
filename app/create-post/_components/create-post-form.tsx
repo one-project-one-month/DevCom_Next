@@ -163,6 +163,7 @@ export function CreatePostForm({ editId }: CreatePostFormProps) {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["feed"] });
+      await queryClient.invalidateQueries({ queryKey: ["me-with-stats"] });
       router.push("/");
     } catch {
       return;

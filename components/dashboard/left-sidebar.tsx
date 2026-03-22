@@ -34,13 +34,13 @@ function ProfileCard({
   const displayName = user?.name ?? "Anonymous User";
   const profileBgColor = user?.profileBgColor;
   const statsQuery = useQuery<{
-    user: { id: string };
+    user: { id: string; handle?: string };
     stats: { threads: number; helpful: number };
   }>({
     queryKey: ["me-with-stats", user?.id],
     queryFn: () =>
       apiFetch<{
-        user: { id: string };
+        user: { id: string; handle?: string };
         stats: { threads: number; helpful: number };
       }>("/api/users/me"),
     enabled: Boolean(user?.id),

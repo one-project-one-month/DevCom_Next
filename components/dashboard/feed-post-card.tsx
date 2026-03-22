@@ -11,6 +11,7 @@ import {
   PencilLine,
   Trash2,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { PanelCard } from "@/components/dashboard/shared";
 import type { FeedPost } from "@/components/dashboard/types";
@@ -97,6 +98,7 @@ export function FeedPostCard({
   onStatusChange,
   eagerImage = false,
 }: FeedPostCardProps) {
+  const queryClient = useQueryClient();
   const [helpfulCount, setHelpfulCount] = useState(post.helpful);
   const [isHelpful, setIsHelpful] = useState(post.hasHelpful ?? false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -133,6 +135,8 @@ export function FeedPostCard({
       setHelpfulCount((current) =>
         Math.max(0, current + (nextHelpful ? -1 : 1)),
       );
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["me-with-stats"] });
     }
   }
 
@@ -152,6 +156,7 @@ export function FeedPostCard({
 
     if (result.ok) {
       onDelete?.(post.id);
+      queryClient.invalidateQueries({ queryKey: ["me-with-stats"] });
     }
   }
 
@@ -200,6 +205,7 @@ export function FeedPostCard({
       });
       setStatus(nextStatus);
       onStatusChange?.(post.id, nextStatus);
+      queryClient.invalidateQueries({ queryKey: ["me-with-stats"] });
     } catch {
       // ignore; keep current state
     } finally {
